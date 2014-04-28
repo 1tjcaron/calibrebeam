@@ -48,6 +48,11 @@ class DemoDialog(QDialog):
         self.marked_button.clicked.connect(self.marked)
         self.l.addWidget(self.marked_button)
 
+        self.meta_button = QPushButton(
+            'println metadata tester', self)
+        self.meta_button.clicked.connect(self.update_metadata)
+        self.l.addWidget(self.meta_button)
+
         self.resize(self.sizeHint())
 
     def about(self):
@@ -81,7 +86,7 @@ class DemoDialog(QDialog):
         self.gui.search.setEditText('marked:true')
         self.gui.search.do_search()
 
-    #probably kill this off, keeping it here for example... i need to grab columns
+    #TC: probably kill this off, keeping it here for example... i need to grab columns
     def update_metadata(self):
         '''
         Set the metadata in the files in the selected book's record to
@@ -101,24 +106,8 @@ class DemoDialog(QDialog):
             # Get the current metadata for this book from the db
             mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
-            fmts = self.db.formats(book_id, index_is_id=True)
-            if not fmts: continue
-            for fmt in fmts.split(','):
-                fmt = fmt.lower()
-                # Get a python file object for the format. This will be either
-                # an in memory file or a temporary on disk file
-                ffile = self.db.format(book_id, fmt, index_is_id=True,
-                        as_file=True)
-                # Set metadata in the format
-                set_metadata(ffile, mi, fmt)
-                ffile.seek(0)
-                # Now replace the file in the calibre library with the updated
-                # file. We dont use add_format_with_hooks as the hooks were
-                # already run when the file was first added to calibre.
-                ffile.name = 'xxx' # add_format() will not work if the file
-                                   # path of the file being added is the same
-                                   # as the path of the file being replaced
-                self.db.add_format(book_id, fmt, ffile, index_is_id=True)
+            print(self.get_evernote_name(mi))
+            print(mi.get('#mm_annotations'))
 
         info_dialog(self, 'Updated files',
                 'Updated the metadata in the files of %d book(s)'%len(ids),
@@ -128,4 +117,11 @@ class DemoDialog(QDialog):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
+        
+    #for other accesses see src/calibre/ebooks/metadata/book/base.py        
+    def get_evernote_name(self, metadata):
+   	    return metadata.get('title')
+    
+        
+
 
