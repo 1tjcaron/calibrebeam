@@ -16,6 +16,10 @@ if False:
 from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
 from calibre_plugins.interface_demo.config import prefs
+import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
+import calibre_plugins.interface_demo.deps.evernote.edam.type.ttypes as Types
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        
 
 class DemoDialog(QDialog):
 
@@ -94,7 +98,14 @@ class DemoDialog(QDialog):
         '''
         from calibre.ebooks.metadata.meta import set_metadata
         from calibre.gui2 import error_dialog, info_dialog
-
+        #####
+        from calibre_plugins.interface_demo.deps.evernote.api.client import EvernoteClient
+        import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
+        import calibre_plugins.interface_demo.deps.evernote.edam.type.ttypes as Types
+        
+        auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
+        client = EvernoteClient(token=auth_token, sandbox=True)
+        ####
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -106,8 +117,9 @@ class DemoDialog(QDialog):
             # Get the current metadata for this book from the db
             mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
-            print(self.get_evernote_name(mi))
-            print(mi.get('#mm_annotations'))
+            myAnnotations = self.get_evernote_content(mi)
+            noteName = self.get_evernote_name(mi)
+            self.create_note(noteName, myAnnotations, client)
 
         info_dialog(self, 'Updated files',
                 'Updated the metadata in the files of %d book(s)'%len(ids),
@@ -117,11 +129,29 @@ class DemoDialog(QDialog):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
-        
-    #for other accesses see src/calibre/ebooks/metadata/book/base.py        
+           
     def get_evernote_name(self, metadata):
    	    return metadata.get('title')
-    
-        
 
-
+    def get_evernote_content(self, metadata):
+        annotations = metadata.get('#mm_annotations')
+        soup = BeautifulSoup(annotations)
+        plainAnnotations = '<div>' + '</div>\n<div> '.join(soup.findAll(text=True)) + '</div>'    
+        myAnnotations = plainAnnotations.encode('ascii', errors='ignore').encode('utf-8')        
+        content = '<?xml version="1.0" encoding="UTF-8"?>'
+        content += '<!DOCTYPE en-note SYSTEM ' \
+            '"http://xml.evernote.com/pub/enml2.dtd">'
+        content += '<en-note>'
+        content += myAnnotations
+        content += '</en-note>'
+        return content
+   	        
+    def create_note(self, title, content, evernoteClient): 
+         # To create a new note, simply create a new Note object and fill in
+         # attributes such as the note's title.
+         note = Types.Note()
+         note.title = title
+         note.content = content
+         note_store = evernoteClient.get_note_store()
+         created_note = note_store.createNote(note)
+         print("Successfully created a new note with GUID: " + created_note.guid)

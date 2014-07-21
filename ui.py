@@ -26,7 +26,7 @@ class EvernoteSyncPlugin(InterfaceAction):
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     action_spec = ('Interface Plugin Demo', None,
-            'Run the Interface Plugin Demo', 'Ctrl+Shift+F1')
+            'Run the Interface Plugin Demo', 'Ctrl+Shift+w')
 
     def genesis(self):
         # This method is called once per plugin, do initial setup here
