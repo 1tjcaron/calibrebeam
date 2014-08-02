@@ -19,7 +19,7 @@ from calibre_plugins.interface_demo.config import prefs
 import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
 import calibre_plugins.interface_demo.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-        
+from calibre.constants import iswindows        
 
 class DemoDialog(QDialog):
 
@@ -40,7 +40,7 @@ class DemoDialog(QDialog):
         self.label = QLabel(prefs['hello_world_msg'])
         self.l.addWidget(self.label)
 
-        self.setWindowTitle('evernote Plugin Demo')
+        self.setWindowTitle('everlit Evernote Sync')
         self.setWindowIcon(icon)
 
         self.about_button = QPushButton('About', self)
@@ -48,12 +48,12 @@ class DemoDialog(QDialog):
         self.l.addWidget(self.about_button)
 
         self.marked_button = QPushButton(
-            'Show books with only one format in the calibre GUI', self)
+            'Show sf books demo', self)
         self.marked_button.clicked.connect(self.marked)
         self.l.addWidget(self.marked_button)
 
         self.meta_button = QPushButton(
-            'println metadata tester', self)
+            'Sync', self)
         self.meta_button.clicked.connect(self.update_metadata)
         self.l.addWidget(self.meta_button)
 

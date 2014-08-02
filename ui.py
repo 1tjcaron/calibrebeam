@@ -16,16 +16,26 @@ if False:
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.interface_demo.main import DemoDialog
+from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
+                      QTimer, QToolButton)
 
 class EvernoteSyncPlugin(InterfaceAction):
 
-    name = 'Evernote Sync Plugin'
+ #    name = 'Evernote Sync Plugin'
+#     #popup_type = QToolButton.InstantPopup
+#     #action_type = 'current'
+# #    name = 'Goodreads Sync'
+#     # Create our top-level menu/toolbar action (text, icon_path, tooltip, keyboard shortcut)
+    action_spec = ('Evernote', None, None, 'Ctrl+Shift+w')
+#    popup_type = QToolButton.InstantPopup
+#    action_type = 'current'
+
 
     # Declare the main action associated with this plugin
     # The keyboard shortcut can be None if you dont want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
-    action_spec = ('Interface Plugin Demo', None,
+    action_spec = ('EVERLIT', None,
             'Run the Interface Plugin Demo', 'Ctrl+Shift+w')
 
     def genesis(self):
@@ -41,12 +51,20 @@ class EvernoteSyncPlugin(InterfaceAction):
         # should pass a list of names to get_icons. In this case, get_icons
         # will return a dictionary mapping names to QIcons. Names that
         # are not found in the zip file will result in null QIcons.
-        icon = get_icons('images/evernoteLogo.jpeg')
+        icon = get_icons('images/icon.png')
+        
+        self.menu = QMenu(self.gui)
+        self.old_actions_unique_map = {}
 
+        # Read the plugin icons and store for potential sharing with the config widget
+        #icon_resources = self.load_resources(PLUGIN_ICONS)
+        #set_plugin_icon_resources(self.name, icon_resources)
         # The qaction is automatically created from the action_spec defined
         # above
         self.qaction.setIcon(icon)
         self.qaction.triggered.connect(self.show_dialog)
+                # Assign our menu to this action and an icon
+        self.qaction.setMenu(self.menu)
 
     def show_dialog(self):
         # The base plugin object defined in __init__.py
