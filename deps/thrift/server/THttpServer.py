@@ -19,8 +19,8 @@
 
 import BaseHTTPServer
 
-from calibre_plugins.interface_demo.deps.thrift.server import TServer
-from calibre_plugins.interface_demo.deps.thrift.transport import TTransport
+from calibre_plugins.everlit.deps.thrift.server import TServer
+from calibre_plugins.everlit.deps.thrift.transport import TTransport
 
 class ResponseException(Exception):
   """Allows handlers to override the HTTP response

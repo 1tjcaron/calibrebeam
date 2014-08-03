@@ -24,7 +24,7 @@ from twisted.protocols import basic
 from twisted.python import log
 from twisted.web import server, resource, http
 
-from calibre_plugins.interface_demo.deps.thrift.transport import TTransport
+from calibre_plugins.everlit.deps.thrift.transport import TTransport
 from cStringIO import StringIO
 
 

@@ -6,8 +6,8 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.interface_demo.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-from calibre_plugins.interface_demo.deps.evernote.edam.userstore.ttypes import *
+from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+from calibre_plugins.everlit.deps.evernote.edam.userstore.ttypes import *
 
 EDAM_VERSION_MAJOR = 1
 EDAM_VERSION_MINOR = 25

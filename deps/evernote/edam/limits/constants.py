@@ -6,8 +6,8 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.interface_demo.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-from calibre_plugins.interface_demo.deps.evernote.ttypes import *
+from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+from calibre_plugins.everlit.deps.evernote.ttypes import *
 
 EDAM_ATTRIBUTE_LEN_MIN = 1
 EDAM_ATTRIBUTE_LEN_MAX = 4096

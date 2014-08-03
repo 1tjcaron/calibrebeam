@@ -15,9 +15,9 @@ if False:
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
-from calibre_plugins.interface_demo.config import prefs
-import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
-import calibre_plugins.interface_demo.deps.evernote.edam.type.ttypes as Types
+from calibre_plugins.everlit.config import prefs
+import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
+import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import iswindows        
 
@@ -98,9 +98,9 @@ class DemoDialog(QDialog):
         from calibre.ebooks.metadata.meta import set_metadata
         from calibre.gui2 import error_dialog, info_dialog
         #####
-        from calibre_plugins.interface_demo.deps.evernote.api.client import EvernoteClient
-        import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
-        import calibre_plugins.interface_demo.deps.evernote.edam.type.ttypes as Types
+        from calibre_plugins.everlit.deps.evernote.api.client import EvernoteClient
+        import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
+        import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
         
         auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
         client = EvernoteClient(token=auth_token, sandbox=True)

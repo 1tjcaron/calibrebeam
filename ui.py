@@ -15,7 +15,7 @@ if False:
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
-from calibre_plugins.interface_demo.main import DemoDialog
+from calibre_plugins.everlit.main import DemoDialog
 from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
                       QTimer, QToolButton)
 
@@ -82,7 +82,7 @@ class EvernoteSyncPlugin(InterfaceAction):
         d.show()
 
     def apply_settings(self):
-        from calibre_plugins.interface_demo.config import prefs
+        from calibre_plugins.everlit.config import prefs
         # In an actual non trivial plugin, you would probably need to
         # do something based on the settings in prefs
         prefs

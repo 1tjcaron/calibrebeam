@@ -2,16 +2,16 @@ import sys
 import functools
 import inspect
 import re
-import calibre_plugins.interface_demo.deps.oauth2 as oauth
+import calibre_plugins.everlit.deps.oauth2 as oauth
 import urllib
 import urlparse
 
-import calibre_plugins.interface_demo.deps.evernote.edam.userstore.UserStore as UserStore
-import calibre_plugins.interface_demo.deps.evernote.edam.notestore.NoteStore as NoteStore
-import calibre_plugins.interface_demo.deps.evernote.edam.userstore.constants as UserStoreConstants
+import calibre_plugins.everlit.deps.evernote.edam.userstore.UserStore as UserStore
+import calibre_plugins.everlit.deps.evernote.edam.notestore.NoteStore as NoteStore
+import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
 
-import calibre_plugins.interface_demo.deps.thrift.protocol.TBinaryProtocol as TBinaryProtocol
-import calibre_plugins.interface_demo.deps.thrift.transport.THttpClient as THttpClient
+import calibre_plugins.everlit.deps.thrift.protocol.TBinaryProtocol as TBinaryProtocol
+import calibre_plugins.everlit.deps.thrift.transport.THttpClient as THttpClient
 
 
 class EvernoteClient(object):

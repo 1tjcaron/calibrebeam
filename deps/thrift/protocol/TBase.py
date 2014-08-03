@@ -17,12 +17,12 @@
 # under the License.
 #
 
-from calibre_plugins.interface_demo.deps.thrift.Thrift import *
-from calibre_plugins.interface_demo.deps.thrift.protocol import TBinaryProtocol
-from calibre_plugins.interface_demo.deps.thrift.transport import TTransport
+from calibre_plugins.everlit.deps.thrift.Thrift import *
+from calibre_plugins.everlit.deps.thrift.protocol import TBinaryProtocol
+from calibre_plugins.everlit.deps.thrift.transport import TTransport
 
 try:
-  from calibre_plugins.interface_demo.deps.thrift.protocol import fastbinary
+  from calibre_plugins.everlit.deps.thrift.protocol import fastbinary
 except:
   fastbinary = None
 
