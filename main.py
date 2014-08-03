@@ -54,7 +54,7 @@ class DemoDialog(QDialog):
 
         self.meta_button = QPushButton(
             'Sync', self)
-        self.meta_button.clicked.connect(self.update_metadata)
+        self.meta_button.clicked.connect(self.send_to_evernote)
         self.l.addWidget(self.meta_button)
 
         self.resize(self.sizeHint())
@@ -90,8 +90,7 @@ class DemoDialog(QDialog):
         self.gui.search.setEditText('marked:true')
         self.gui.search.do_search()
 
-    #TC: probably kill this off, keeping it here for example... i need to grab columns
-    def update_metadata(self):
+    def send_to_evernote(self):
         '''
         Set the metadata in the files in the selected book's record to
         match the current metadata in the database.

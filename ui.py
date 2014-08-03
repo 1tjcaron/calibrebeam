@@ -26,7 +26,7 @@ class EvernoteSyncPlugin(InterfaceAction):
 #     #action_type = 'current'
 # #    name = 'Goodreads Sync'
 #     # Create our top-level menu/toolbar action (text, icon_path, tooltip, keyboard shortcut)
-    action_spec = ('Evernote', None, None, 'Ctrl+Shift+w')
+#    action_spec = ('Evernote', None, None, 'Ctrl+Shift+w')
 #    popup_type = QToolButton.InstantPopup
 #    action_type = 'current'
 
@@ -36,7 +36,7 @@ class EvernoteSyncPlugin(InterfaceAction):
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     action_spec = ('EVERLIT', None,
-            'Run the Interface Plugin Demo', 'Ctrl+Shift+w')
+            'Open Everlit Menu', 'Ctrl+Shift+w')
 
     def genesis(self):
         # This method is called once per plugin, do initial setup here
