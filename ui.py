@@ -15,7 +15,7 @@ if False:
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
-from calibre_plugins.everlit.main import DemoDialog
+from calibre_plugins.everlit.main import EverlitDialog
 from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
                       QTimer, QToolButton)
 
@@ -78,7 +78,7 @@ class EvernoteSyncPlugin(InterfaceAction):
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
-        d = DemoDialog(self.gui, self.qaction.icon(), do_user_config)
+        d = EverlitDialog(self.gui, self.qaction.icon(), do_user_config)
         d.show()
 
     def apply_settings(self):

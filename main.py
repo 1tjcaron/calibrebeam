@@ -21,7 +21,7 @@ import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import iswindows        
 
-class DemoDialog(QDialog):
+class EverlitDialog(QDialog):
 
     def __init__(self, gui, icon, do_user_config):
         QDialog.__init__(self, gui)
