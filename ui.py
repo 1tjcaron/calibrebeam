@@ -18,7 +18,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.everlit.main import EverlitDialog
 from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
                       QTimer, QToolButton)
-
+ 
 class EvernoteSyncPlugin(InterfaceAction):
 
  #    name = 'Evernote Sync Plugin'

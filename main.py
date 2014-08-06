@@ -42,7 +42,10 @@ class EverlitDialog(QDialog):
 
         self.setWindowTitle('everlit Evernote Sync')
         self.setWindowIcon(icon)
-
+        self.initButtons()
+        self.resize(self.sizeHint())
+    
+    def initButtons(self):
         self.about_button = QPushButton('About', self)
         self.about_button.clicked.connect(self.about)
         self.l.addWidget(self.about_button)
@@ -56,8 +59,14 @@ class EverlitDialog(QDialog):
             'Sync', self)
         self.meta_button.clicked.connect(self.send_to_evernote)
         self.l.addWidget(self.meta_button)
-
-        self.resize(self.sizeHint())
+        
+        self.show_tags = QPushButton('Show All Tags', self)
+        self.show_tags.clicked.connect(self.get_evernote_taglist)
+        self.l.addWidget(self.show_tags)
+        
+        self.create_evernote_tag_bt = QPushButton('Create Calibre Tag', self)
+        self.create_evernote_tag_bt.clicked.connect(self.create_evernote_notebook)
+        self.l.addWidget(self.create_evernote_tag_bt)
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -90,21 +99,24 @@ class EverlitDialog(QDialog):
         self.gui.search.setEditText('marked:true')
         self.gui.search.do_search()
 
-    def send_to_evernote(self):
+    def connect_to_evernote(self):
         '''
         Set the metadata in the files in the selected book's record to
         match the current metadata in the database.
         '''
-        from calibre.ebooks.metadata.meta import set_metadata
-        from calibre.gui2 import error_dialog, info_dialog
+        #from calibre.ebooks.metadata.meta import set_metadata
         #####
         from calibre_plugins.everlit.deps.evernote.api.client import EvernoteClient
         import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
         import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
         
         auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
-        client = EvernoteClient(token=auth_token, sandbox=True)
-        ####
+        self.client = EvernoteClient(token=auth_token, sandbox=True)
+        self.note_store = self.client.get_note_store()
+        
+    def send_to_evernote(self):
+        from calibre.gui2 import error_dialog, info_dialog
+        self.connect_to_evernote()
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -116,23 +128,27 @@ class EverlitDialog(QDialog):
             # Get the current metadata for this book from the db
             mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
-            myAnnotations = self.get_evernote_content(mi)
-            noteName = self.get_evernote_name(mi)
-            self.create_note(noteName, myAnnotations, client)
+            myAnnotations = self.make_evernote_content(mi)
+            noteName = self.make_evernote_name(mi)
+            self.create_note(noteName, myAnnotations, self.note_store)
 
         info_dialog(self, 'Updated files',
                 'Updated the metadata in the files of %d book(s)'%len(ids),
                 show=True)
+        
+    def get_evernote_taglist(self):
+        self.connect_to_evernote()
+        print(self.note_store.listTags())
 
     def config(self):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
            
-    def get_evernote_name(self, metadata):
-   	    return metadata.get('title')
+    def make_evernote_name(self, metadata):
+        return metadata.get('title')
 
-    def get_evernote_content(self, metadata):
+    def make_evernote_content(self, metadata):
         annotations = metadata.get('#mm_annotations')
         soup = BeautifulSoup(annotations)
         plainAnnotations = '<div>' + '</div>\n<div> '.join(soup.findAll(text=True)) + '</div>'    
@@ -144,13 +160,21 @@ class EverlitDialog(QDialog):
         content += myAnnotations
         content += '</en-note>'
         return content
-   	        
-    def create_note(self, title, content, evernoteClient): 
-         # To create a new note, simply create a new Note object and fill in
-         # attributes such as the note's title.
-         note = Types.Note()
-         note.title = title
-         note.content = content
-         note_store = evernoteClient.get_note_store()
-         created_note = note_store.createNote(note)
-         print("Successfully created a new note with GUID: " + created_note.guid)
+           
+    def create_note(self, title, content, note_store): 
+        # To create a new note, simply create a new Note object and fill in
+        # attributes such as the note's title.
+        note = Types.Note()
+        note.title = title
+        note.content = content
+        note.tagNames = ['yo', 'calibre']
+        created_note = note_store.createNote(note)
+        print("Successfully created a new note with GUID: " + created_note.guid)
+        
+    #TODO: convert this into createNoteOrGetExistingGuid, return guid
+    def create_evernote_notebook(self):
+        self.connect_to_evernote()
+        notebook = Types.Notebook()
+        notebook.name = "Books"
+        created_tag = self.note_store.createNotebook(notebook)
+        print("Successfully created a new notebook with GUID: " + created_tag.guid)
