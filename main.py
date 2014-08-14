@@ -64,7 +64,7 @@ class EverlitDialog(QDialog):
         self.show_tags.clicked.connect(self.get_evernote_taglist)
         self.l.addWidget(self.show_tags)
         
-        self.create_evernote_tag_bt = QPushButton('Create Calibre Tag', self)
+        self.create_evernote_tag_bt = QPushButton('Create Calibre NoteBook', self)
         self.create_evernote_tag_bt.clicked.connect(self.create_evernote_notebook)
         self.l.addWidget(self.create_evernote_tag_bt)
 
@@ -167,14 +167,15 @@ class EverlitDialog(QDialog):
         note = Types.Note()
         note.title = title
         note.content = content
-        note.tagNames = ['yo', 'calibre']
+        note.tagNames = prefs['tagsCsv'].split[',']
         created_note = note_store.createNote(note)
         print("Successfully created a new note with GUID: " + created_note.guid)
         
     #TODO: convert this into createNoteOrGetExistingGuid, return guid
+    #TODO: automate behaviour in create_note... create if nonexista...
     def create_evernote_notebook(self):
         self.connect_to_evernote()
         notebook = Types.Notebook()
-        notebook.name = "Books"
+        notebook.name = prefs['notebook']
         created_tag = self.note_store.createNotebook(notebook)
         print("Successfully created a new notebook with GUID: " + created_tag.guid)

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
-class InterfacePluginDemo(InterfaceActionBase):
+class EverlitAction(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the actual
     plugin class. The actual interface plugin class is called InterfacePlugin
@@ -21,7 +21,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     calibre utilities to run without needing to load the GUI libraries.
     '''
     name                = 'Everlit'
-    description         = 'An advanced plugin demo'
+    description         = 'Sync ereader highlights with evernote!'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Thomas Caron'
     version             = (1, 0, 0)

@@ -20,6 +20,8 @@ prefs = JSONConfig('plugins/everlit')
 
 # Set defaults
 prefs.defaults['hello_world_msg'] = 'Hello, World!'
+prefs.defaults['notebook'] = 'bks'
+prefs.defaults['tagsCsv'] = 'Calibre'
 
 class ConfigWidget(QWidget):
 
@@ -35,7 +37,25 @@ class ConfigWidget(QWidget):
         self.msg.setText(prefs['hello_world_msg'])
         self.l.addWidget(self.msg)
         self.label.setBuddy(self.msg)
+        
+        self.notebookLabel = QLabel('Notebook')
+        self.l.addWidget(self.notebookLabel)
+
+        self.notebookMsg = QLineEdit(self)
+        self.notebookMsg.setText(prefs['notebook'])
+        self.l.addWidget(self.notebookMsg)
+        self.notebooklabel.setBuddy(self.notebookMsg)
+        
+        self.tagsCsvLabel = QLabel('Tags CSV (ie calibre,mykindle)')
+        self.l.addWidget(self.tagsCsvLabel)
+
+        self.tagsCsvMsg = QLineEdit(self)
+        self.tagsCsvMsg.setText(prefs['tagsCsv'])
+        self.l.addWidget(self.tagsCsvMsg)
+        self.tagsCsvLabel.setBuddy(self.tagsCsvMsg)
 
     def save_settings(self):
         prefs['hello_world_msg'] = unicode(self.msg.text())
+        prefs['notebook'] = unicode(self.notebookMsg.text())
+        prefs['tagsCsv'] = unicode(self.tagsCsvMsg.text())
 
