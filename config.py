@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QHBoxLayout, QLabel, QLineEdit
+from PyQt4.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit
 
 from calibre.utils.config import JSONConfig
 
@@ -16,18 +16,18 @@ from calibre.utils.config import JSONConfig
 # in a global namespace, so make it as unique as possible.
 # You should always prefix your config file name with plugins/,
 # so as to ensure you dont accidentally clobber a calibre config file
-prefs = JSONConfig('plugins/everlit')
+prefs = JSONConfig('plugins/everlit2')
 
 # Set defaults
 prefs.defaults['hello_world_msg'] = 'Hello, World!'
-prefs.defaults['notebook'] = 'bks'
-prefs.defaults['tagsCsv'] = 'Calibre'
+prefs.defaults['notebook'] = ""
+prefs.defaults['tagsCsv'] = ""
 
 class ConfigWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.l = QHBoxLayout()
+        self.l = QVBoxLayout()
         self.setLayout(self.l)
 
         self.label = QLabel('Hello world &message:')
@@ -44,7 +44,7 @@ class ConfigWidget(QWidget):
         self.notebookMsg = QLineEdit(self)
         self.notebookMsg.setText(prefs['notebook'])
         self.l.addWidget(self.notebookMsg)
-        self.notebooklabel.setBuddy(self.notebookMsg)
+        self.notebookLabel.setBuddy(self.notebookMsg)
         
         self.tagsCsvLabel = QLabel('Tags CSV (ie calibre,mykindle)')
         self.l.addWidget(self.tagsCsvLabel)

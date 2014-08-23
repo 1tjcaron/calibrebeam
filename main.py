@@ -65,7 +65,7 @@ class EverlitDialog(QDialog):
         self.l.addWidget(self.show_tags)
         
         self.create_evernote_tag_bt = QPushButton('Create Calibre NoteBook', self)
-        self.create_evernote_tag_bt.clicked.connect(self.create_evernote_notebook)
+        self.create_evernote_tag_bt.clicked.connect(self.create_evernote_notebook_if_not_exits)
         self.l.addWidget(self.create_evernote_tag_bt)
 
     def about(self):
@@ -100,10 +100,6 @@ class EverlitDialog(QDialog):
         self.gui.search.do_search()
 
     def connect_to_evernote(self):
-        '''
-        Set the metadata in the files in the selected book's record to
-        match the current metadata in the database.
-        '''
         #from calibre.ebooks.metadata.meta import set_metadata
         #####
         from calibre_plugins.everlit.deps.evernote.api.client import EvernoteClient
@@ -120,25 +116,27 @@ class EverlitDialog(QDialog):
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, 'Cannot update metadata',
+            return error_dialog(self.gui, 'Cannot send books to Evernote',
                              'No books selected', show=True)
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
         for book_id in ids:
-            # Get the current metadata for this book from the db
-            mi = self.db.get_metadata(book_id, index_is_id=True,
-                    get_cover=True, cover_as_data=True)
-            myAnnotations = self.make_evernote_content(mi)
-            noteName = self.make_evernote_name(mi)
-            self.create_note(noteName, myAnnotations, self.note_store)
-
+            self.send_book_to_evernote(book_id)
         info_dialog(self, 'Updated files',
-                'Updated the metadata in the files of %d book(s)'%len(ids),
+                'sent %d book highlights to Evernote!'%len(ids),
                 show=True)
         
+    def send_book_to_evernote(self, book_id):
+        # Get the current metadata for this book from the db
+        mi = self.db.get_metadata(book_id, index_is_id=True,
+                    get_cover=True, cover_as_data=True)
+        myAnnotations = self.make_evernote_content(mi)
+        noteName = self.make_evernote_name(mi)
+        self.create_note(noteName, myAnnotations, self.note_store)
+    
     def get_evernote_taglist(self):
         self.connect_to_evernote()
-        print(self.note_store.listTags())
+        print(self.note_store.listNotebooks())
 
     def config(self):
         self.do_user_config(parent=self)
@@ -167,15 +165,27 @@ class EverlitDialog(QDialog):
         note = Types.Note()
         note.title = title
         note.content = content
-        note.tagNames = prefs['tagsCsv'].split[',']
+        if prefs['tagsCsv']:
+            note.tagNames = prefs['tagsCsv'].split(",")
+        if prefs['notebook']:
+            note.notebookGuid = self.create_evernote_notebook_if_not_exits()
         created_note = note_store.createNote(note)
-        print("Successfully created a new note with GUID: " + created_note.guid)
+        #print("Successfully created a new note with GUID: " + created_note.guid)
         
-    #TODO: convert this into createNoteOrGetExistingGuid, return guid
     #TODO: automate behaviour in create_note... create if nonexista...
-    def create_evernote_notebook(self):
+    def create_evernote_notebook_if_not_exits(self):
+        nb_name = prefs['notebook']
         self.connect_to_evernote()
-        notebook = Types.Notebook()
-        notebook.name = prefs['notebook']
-        created_tag = self.note_store.createNotebook(notebook)
-        print("Successfully created a new notebook with GUID: " + created_tag.guid)
+        nb_guid = None
+        for nb in self.note_store.listNotebooks():
+            if nb.name == nb_name:
+                nb_guid = nb.guid
+                print(nb_name + "Notebook exists already GUID: " + nb_guid)
+        #if it doesnt exist create it
+        if nb_guid == None:
+            notebook = Types.Notebook()
+            notebook.name = nb_name
+            created_nb = self.note_store.createNotebook(notebook)
+            nb_guid = created_nb.guid
+            print("Successfully created a new notebook with GUID: " + created_nb.guid)
+        return nb_guid
