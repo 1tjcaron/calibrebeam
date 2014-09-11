@@ -27,6 +27,7 @@ class EverlitDialog(QDialog):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
+        self.cached_prefs_notebook_guid = None
 
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
@@ -50,23 +51,15 @@ class EverlitDialog(QDialog):
         self.about_button.clicked.connect(self.about)
         self.l.addWidget(self.about_button)
 
-        self.marked_button = QPushButton(
-            'Show sf books demo', self)
-        self.marked_button.clicked.connect(self.marked)
-        self.l.addWidget(self.marked_button)
+        self.sync_highlighted_button = QPushButton(
+            'Send Highlighted', self)
+        self.sync_highlighted_button.clicked.connect(self.send_selected_highlights_to_evernote)
+        self.l.addWidget(self.sync_highlighted_button)
 
-        self.meta_button = QPushButton(
-            'Sync', self)
-        self.meta_button.clicked.connect(self.send_to_evernote)
-        self.l.addWidget(self.meta_button)
-        
-        self.show_tags = QPushButton('Show All Tags', self)
-        self.show_tags.clicked.connect(self.get_evernote_taglist)
-        self.l.addWidget(self.show_tags)
-        
-        self.create_evernote_tag_bt = QPushButton('Create Calibre NoteBook', self)
-        self.create_evernote_tag_bt.clicked.connect(self.create_evernote_notebook_if_not_exits)
-        self.l.addWidget(self.create_evernote_tag_bt)
+        self.send_new_button = QPushButton(
+            'Send New', self)
+        self.send_new_button.clicked.connect(self.send_new_highlights_to_evernote)
+        self.l.addWidget(self.send_new_button)
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -79,7 +72,7 @@ class EverlitDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About the Interface Plugin Demo',
+        QMessageBox.about(self, 'About EVERLIT',
                 text.decode('utf-8'))
 
     def marked(self):
@@ -110,7 +103,7 @@ class EverlitDialog(QDialog):
         self.client = EvernoteClient(token=auth_token, sandbox=True)
         self.note_store = self.client.get_note_store()
         
-    def send_to_evernote(self):
+    def send_selected_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
         self.connect_to_evernote()
         # Get currently selected books
@@ -126,18 +119,29 @@ class EverlitDialog(QDialog):
                 'sent %d book highlights to Evernote!'%len(ids),
                 show=True)
         
+    def send_new_highlights_to_evernote(self):
+        from calibre.gui2 import error_dialog, info_dialog
+        info_dialog(self, "TODO", "THIS SHOULD SEND SOME HIGHLIGHTS", show=True)
+        
     def send_book_to_evernote(self, book_id):
         # Get the current metadata for this book from the db
         mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
         myAnnotations = self.make_evernote_content(mi)
         noteName = self.make_evernote_name(mi)
+        self.stamp_comments_ifNb(book_id)
         self.create_note(noteName, myAnnotations, self.note_store)
     
-    def get_evernote_taglist(self):
-        self.connect_to_evernote()
-        print(self.note_store.listNotebooks())
-
+    #stamp comments if need be
+    def stamp_comments_ifNb(self, book_id):
+        comments = self.db.comments(book_id, index_is_id=True) 
+        comments = '' if comments == None else comments 
+        commentStamp = '<p class="everlitStamp">SENT TO EVERNOTE</p>'
+        if commentStamp not in comments:
+            self.db.set_comment(book_id, commentStamp + comments)
+            self.db.commit()
+    
+    
     def config(self):
         self.do_user_config(parent=self)
         # Apply the changes
@@ -147,7 +151,7 @@ class EverlitDialog(QDialog):
         return metadata.get('title')
 
     def make_evernote_content(self, metadata):
-        annotations = metadata.get('#mm_annotations')
+        annotations = metadata.get('comments')
         soup = BeautifulSoup(annotations)
         plainAnnotations = '<div>' + '</div>\n<div> '.join(soup.findAll(text=True)) + '</div>'    
         myAnnotations = plainAnnotations.encode('ascii', errors='ignore').encode('utf-8')        
@@ -172,20 +176,26 @@ class EverlitDialog(QDialog):
         created_note = note_store.createNote(note)
         #print("Successfully created a new note with GUID: " + created_note.guid)
         
-    #TODO: automate behaviour in create_note... create if nonexista...
     def create_evernote_notebook_if_not_exits(self):
         nb_name = prefs['notebook']
         self.connect_to_evernote()
-        nb_guid = None
-        for nb in self.note_store.listNotebooks():
-            if nb.name == nb_name:
-                nb_guid = nb.guid
-                print(nb_name + "Notebook exists already GUID: " + nb_guid)
-        #if it doesnt exist create it
+        nb_guid = self.get_notebook_guid_if_exists(nb_name)
         if nb_guid == None:
             notebook = Types.Notebook()
             notebook.name = nb_name
             created_nb = self.note_store.createNotebook(notebook)
             nb_guid = created_nb.guid
+            self.cached_prefs_notebook_guid = nb_guid
             print("Successfully created a new notebook with GUID: " + created_nb.guid)
         return nb_guid
+
+    def get_notebook_guid_if_exists(self, nb_name):
+        if self.cached_prefs_notebook_guid != None:
+            return self.cached_prefs_notebook_guid
+        for nb in self.note_store.listNotebooks():
+            if nb.name.lower() == nb_name.lower(): #TODO: make note of this caviat in docs
+                print(nb_name + " Notebook exists already GUID: " + nb.guid)
+                self.cached_prefs_notebook_guid = nb.guid
+                return nb.guid
+        return None
+        

@@ -19,7 +19,7 @@ from calibre.utils.config import JSONConfig
 prefs = JSONConfig('plugins/everlit2')
 
 # Set defaults
-prefs.defaults['hello_world_msg'] = 'Hello, World!'
+prefs.defaults['hello_world_msg'] = 'Sync your notes with evernote!'
 prefs.defaults['notebook'] = ""
 prefs.defaults['tagsCsv'] = ""
 
