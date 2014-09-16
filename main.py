@@ -22,8 +22,9 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import iswindows        
 
 class EverlitDialog(QDialog):
-
+    
     def __init__(self, gui, icon, do_user_config):
+        self.SENT_STAMP = '<p class="everlitStamp">THIS WAS ALREADY SENT TO EVERNOTE</p>'
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -58,7 +59,7 @@ class EverlitDialog(QDialog):
 
         self.send_new_button = QPushButton(
             'Send New', self)
-        self.send_new_button.clicked.connect(self.send_new_highlights_to_evernote)
+        self.send_new_button.clicked.connect(self.send_only_new_highlights_to_evernote)
         self.l.addWidget(self.send_new_button)
 
     def about(self):
@@ -119,24 +120,50 @@ class EverlitDialog(QDialog):
                 'sent %d book highlights to Evernote!'%len(ids),
                 show=True)
         
-    def send_new_highlights_to_evernote(self):
+    def send_only_new_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
-        info_dialog(self, "TODO", "THIS SHOULD SEND SOME HIGHLIGHTS", show=True)
+        self.connect_to_evernote()
+        # Get currently selected books
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return error_dialog(self.gui, 'Cannot send books to Evernote',
+                             'No books selected', show=True)
+        # Map the rows to book ids
+        ids = list(map(self.gui.library_view.model().id, rows))
+        sent_count = 0
+        for book_id in ids:
+            if self.send_book_to_evernote_ifNb(book_id, True):
+                sent_count = sent_count + 1
+        info_dialog(self, 'Updated files',
+                'sent %d book highlights to Evernote!'%sent_count,
+                show=True)
+        #from calibre.gui2 import error_dialog, info_dialog
+        #info_dialog(self, "TODO", "THIS SHOULD SEND SOME HIGHLIGHTS", show=True)
         
     def send_book_to_evernote(self, book_id):
-        # Get the current metadata for this book from the db
+        return self.send_book_to_evernote_ifNb(book_id, False)
+
+        
+    #TODO: fix and refactor: make_evernote_content() will not return the html tags, silly!!!!
+    def send_book_to_evernote_ifNb(self, book_id, dont_send_if_already_sent):
+                # Get the current metadata for this book from the db
         mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
         myAnnotations = self.make_evernote_content(mi)
+        
+        if dont_send_if_already_sent and self.SENT_STAMP in myAnnotations:
+            return False
+    
         noteName = self.make_evernote_name(mi)
-        self.stamp_comments_ifNb(book_id)
         self.create_note(noteName, myAnnotations, self.note_store)
+        self.stamp_comments_ifNb(book_id)
+        return True
     
     #stamp comments if need be
     def stamp_comments_ifNb(self, book_id):
         comments = self.db.comments(book_id, index_is_id=True) 
         comments = '' if comments == None else comments 
-        commentStamp = '<p class="everlitStamp">SENT TO EVERNOTE</p>'
+        commentStamp = self.SENT_STAMP
         if commentStamp not in comments:
             self.db.set_comment(book_id, commentStamp + comments)
             self.db.commit()
@@ -162,7 +189,7 @@ class EverlitDialog(QDialog):
         content += myAnnotations
         content += '</en-note>'
         return content
-           
+
     def create_note(self, title, content, note_store): 
         # To create a new note, simply create a new Note object and fill in
         # attributes such as the note's title.
