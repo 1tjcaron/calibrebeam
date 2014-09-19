@@ -24,7 +24,8 @@ from calibre.constants import iswindows
 class EverlitDialog(QDialog):
     
     def __init__(self, gui, icon, do_user_config):
-        self.SENT_STAMP = '<p class="everlitStamp">THIS WAS ALREADY SENT TO EVERNOTE</p>'
+        self.SENT_STAMP = '<p class="everlitStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
+        self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -129,7 +130,8 @@ class EverlitDialog(QDialog):
             return error_dialog(self.gui, 'Cannot send books to Evernote',
                              'No books selected', show=True)
         # Map the rows to book ids
-        ids = list(map(self.gui.library_view.model().id, rows))
+        #ids = list(map(self.gui.library_view.model().id, rows))
+        ids = self.db.new_api.all_book_ids()
         sent_count = 0
         for book_id in ids:
             if self.send_book_to_evernote_ifNb(book_id, True):
@@ -143,30 +145,44 @@ class EverlitDialog(QDialog):
     def send_book_to_evernote(self, book_id):
         return self.send_book_to_evernote_ifNb(book_id, False)
 
-        
-    #TODO: fix and refactor: make_evernote_content() will not return the html tags, silly!!!!
-    def send_book_to_evernote_ifNb(self, book_id, dont_send_if_already_sent):
+    def send_book_to_evernote_ifNb(self, book_id, uses_send_filters):
                 # Get the current metadata for this book from the db
-        mi = self.db.get_metadata(book_id, index_is_id=True,
+        metadata = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
-        myAnnotations = self.make_evernote_content(mi)
         
-        if dont_send_if_already_sent and self.SENT_STAMP in myAnnotations:
-            return False
+        if uses_send_filters:
+            annotations_raw = self.get_annotations_raw_from_metadata(metadata)
+            annotations_raw = '' if annotations_raw == None else annotations_raw
+            if self.SENT_STAMP in annotations_raw:
+                return False
+            if self.ANNOTATIONS_PRESENT_STRING not in annotations_raw:
+                return False
     
-        noteName = self.make_evernote_name(mi)
+        noteName = self.make_evernote_name(metadata)
+        myAnnotations = self.make_evernote_content(metadata)
         self.create_note(noteName, myAnnotations, self.note_store)
-        self.stamp_comments_ifNb(book_id)
+        self.stamp_annotations_ifNb(book_id)
         return True
     
-    #stamp comments if need be
-    def stamp_comments_ifNb(self, book_id):
-        comments = self.db.comments(book_id, index_is_id=True) 
-        comments = '' if comments == None else comments 
+    def get_annotations_raw(self, book_id):
+        metadata = self.db.get_metadata(book_id, index_is_id=True,
+            get_cover=True, cover_as_data=True)
+        return self.get_annotations_raw_from_metadata(metadata)
+    
+    def get_annotations_raw_from_metadata(self, metadata):
+        return metadata.get('comments')
+    
+    def set_annotations_raw(self, book_id, annotations):
+        self.db.set_comment(book_id, annotations)
+        self.db.commit()
+    
+    #stamp annotations if need be
+    def stamp_annotations_ifNb(self, book_id):
+        annotes = self.get_annotations_raw(book_id) 
+        annotes = '' if annotes == None else annotes 
         commentStamp = self.SENT_STAMP
-        if commentStamp not in comments:
-            self.db.set_comment(book_id, commentStamp + comments)
-            self.db.commit()
+        if commentStamp not in annotes:
+            self.set_annotations_raw(book_id, commentStamp + annotes)
     
     
     def config(self):
@@ -178,7 +194,7 @@ class EverlitDialog(QDialog):
         return metadata.get('title')
 
     def make_evernote_content(self, metadata):
-        annotations = metadata.get('comments')
+        annotations = self.get_annotations_raw_from_metadata(metadata)
         soup = BeautifulSoup(annotations)
         plainAnnotations = '<div>' + '</div>\n<div> '.join(soup.findAll(text=True)) + '</div>'    
         myAnnotations = plainAnnotations.encode('ascii', errors='ignore').encode('utf-8')        
