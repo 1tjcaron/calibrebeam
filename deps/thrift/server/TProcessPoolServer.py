@@ -22,7 +22,7 @@ import logging
 from multiprocessing import  Process, Value, Condition, reduction
 
 from TServer import TServer
-from calibre_plugins.everlit.deps.thrift.transport.TTransport import TTransportException
+from calibre_plugins.read_once.deps.thrift.transport.TTransport import TTransportException
 
 class TProcessPoolServer(TServer):
 

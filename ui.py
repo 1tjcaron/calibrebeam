@@ -15,7 +15,7 @@ if False:
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
-from calibre_plugins.everlit.main import EverlitDialog
+from calibre_plugins.read_once.main import read_onceDialog
 from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
                       QTimer, QToolButton)
  
@@ -35,8 +35,8 @@ class EvernoteSyncPlugin(InterfaceAction):
     # The keyboard shortcut can be None if you dont want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
-    action_spec = ('EVERLIT', None,
-            'Open Everlit Menu', 'Ctrl+Shift+w')
+    action_spec = ('Read Once', None,
+            'Open I Read Once Menu', 'Ctrl+Shift+w')
 
     def genesis(self):
         # This method is called once per plugin, do initial setup here
@@ -78,11 +78,11 @@ class EvernoteSyncPlugin(InterfaceAction):
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
-        d = EverlitDialog(self.gui, self.qaction.icon(), do_user_config)
+        d = read_onceDialog(self.gui, self.qaction.icon(), do_user_config)
         d.show()
 
     def apply_settings(self):
-        from calibre_plugins.everlit.config import prefs
+        from calibre_plugins.read_once.config import prefs
         # In an actual non trivial plugin, you would probably need to
         # do something based on the settings in prefs
         prefs

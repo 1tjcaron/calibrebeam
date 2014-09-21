@@ -15,16 +15,16 @@ if False:
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
-from calibre_plugins.everlit.config import prefs
-import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
-import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
+from calibre_plugins.read_once.config import prefs
+import calibre_plugins.read_once.deps.evernote.edam.userstore.constants as UserStoreConstants
+import calibre_plugins.read_once.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import iswindows        
 
-class EverlitDialog(QDialog):
+class read_onceDialog(QDialog):
     
     def __init__(self, gui, icon, do_user_config):
-        self.SENT_STAMP = '<p class="everlitStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
+        self.SENT_STAMP = '<p class="read_onceStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
         self.gui = gui
@@ -43,7 +43,7 @@ class EverlitDialog(QDialog):
         self.label = QLabel(prefs['hello_world_msg'])
         self.l.addWidget(self.label)
 
-        self.setWindowTitle('everlit Evernote Sync')
+        self.setWindowTitle('I Read Once Evernote Sync')
         self.setWindowIcon(icon)
         self.initButtons()
         self.resize(self.sizeHint())
@@ -59,7 +59,7 @@ class EverlitDialog(QDialog):
         self.l.addWidget(self.sync_highlighted_button)
 
         self.send_new_button = QPushButton(
-            'Send New', self)
+            'Send All Unsent Annotations', self)
         self.send_new_button.clicked.connect(self.send_only_new_highlights_to_evernote)
         self.l.addWidget(self.send_new_button)
 
@@ -74,32 +74,15 @@ class EverlitDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About EVERLIT',
+        QMessageBox.about(self, 'About I Read Once',
                 text.decode('utf-8'))
-
-    def marked(self):
-        ''' Show books with only one format '''
-        fmt_idx = self.db.FIELD_MAP['formats']
-        matched_ids = set()
-        for record in self.db.data.iterall():
-            # Iterate over all records
-            fmts = record[fmt_idx]
-            # fmts is either None or a comma separated list of formats
-            if fmts and ',' not in fmts:
-                matched_ids.add(record[0])
-        # Mark the records with the matching ids
-        self.db.set_marked_ids(matched_ids)
-
-        # Tell the GUI to search for all marked records
-        self.gui.search.setEditText('marked:true')
-        self.gui.search.do_search()
-
+        
     def connect_to_evernote(self):
         #from calibre.ebooks.metadata.meta import set_metadata
         #####
-        from calibre_plugins.everlit.deps.evernote.api.client import EvernoteClient
-        import calibre_plugins.everlit.deps.evernote.edam.userstore.constants as UserStoreConstants
-        import calibre_plugins.everlit.deps.evernote.edam.type.ttypes as Types
+        from calibre_plugins.read_once.deps.evernote.api.client import EvernoteClient
+        import calibre_plugins.read_once.deps.evernote.edam.userstore.constants as UserStoreConstants
+        import calibre_plugins.read_once.deps.evernote.edam.type.ttypes as Types
         
         auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
         self.client = EvernoteClient(token=auth_token, sandbox=True)

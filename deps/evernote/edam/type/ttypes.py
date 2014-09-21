@@ -6,14 +6,14 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-import calibre_plugins.everlit.deps.evernote.edam.limits.ttypes
+from calibre_plugins.read_once.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+import calibre_plugins.read_once.deps.evernote.edam.limits.ttypes
 
 
-from calibre_plugins.everlit.deps.thrift.transport import TTransport
-from calibre_plugins.everlit.deps.thrift.protocol import TBinaryProtocol, TProtocol
+from calibre_plugins.read_once.deps.thrift.transport import TTransport
+from calibre_plugins.read_once.deps.thrift.protocol import TBinaryProtocol, TProtocol
 try:
-  from calibre_plugins.everlit.deps.thrift.protocol import fastbinary
+  from calibre_plugins.read_once.deps.thrift.protocol import fastbinary
 except:
   fastbinary = None
 

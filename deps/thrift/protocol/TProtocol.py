@@ -17,7 +17,7 @@
 # under the License.
 #
 
-from calibre_plugins.everlit.deps.thrift.Thrift import *
+from calibre_plugins.read_once.deps.thrift.Thrift import *
 
 class TProtocolException(TException):
 

@@ -20,8 +20,8 @@ import os
 import socket
 import ssl
 
-from calibre_plugins.everlit.deps.thrift.transport import TSocket
-from calibre_plugins.everlit.deps.thrift.transport.TTransport import TTransportException
+from calibre_plugins.read_once.deps.thrift.transport import TSocket
+from calibre_plugins.read_once.deps.thrift.transport.TTransport import TTransportException
 
 class TSSLSocket(TSocket.TSocket):
   """

@@ -6,8 +6,8 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-from calibre_plugins.everlit.deps.evernote.edam.type.ttypes import *
+from calibre_plugins.read_once.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+from calibre_plugins.read_once.deps.evernote.edam.type.ttypes import *
 
 CLASSIFICATION_RECIPE_USER_NON_RECIPE = "000"
 CLASSIFICATION_RECIPE_USER_RECIPE = "001"

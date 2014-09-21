@@ -7,5 +7,5 @@
 #
 
 from thrift.Thrift import TType, TMessageType, TException, TApplicationException
-from calibre_plugins.everlit.deps.evernote.edam.error.ttypes import *
+from calibre_plugins.read_once.deps.evernote.edam.error.ttypes import *
 

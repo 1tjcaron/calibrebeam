@@ -6,6 +6,6 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-from calibre_plugins.everlit.deps.evernote.edam.notestore.ttypes import *
+from calibre_plugins.read_once.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+from calibre_plugins.read_once.deps.evernote.edam.notestore.ttypes import *
 

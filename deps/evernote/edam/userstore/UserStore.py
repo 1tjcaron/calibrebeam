@@ -6,13 +6,13 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.everlit.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+from calibre_plugins.read_once.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
 from ttypes import *
-from calibre_plugins.everlit.deps.thrift.Thrift import TProcessor
-from calibre_plugins.everlit.deps.thrift.transport import TTransport
-from calibre_plugins.everlit.deps.thrift.protocol import TBinaryProtocol, TProtocol
+from calibre_plugins.read_once.deps.thrift.Thrift import TProcessor
+from calibre_plugins.read_once.deps.thrift.transport import TTransport
+from calibre_plugins.read_once.deps.thrift.protocol import TBinaryProtocol, TProtocol
 try:
-  from calibre_plugins.everlit.deps.thrift.protocol import fastbinary
+  from calibre_plugins.read_once.deps.thrift.protocol import fastbinary
 except:
   fastbinary = None
 
@@ -109,11 +109,11 @@ class Iface(object):
     
     @param consumerKey
       The "consumer key" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param consumerSecret
       The "consumer secret" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param supportsTwoFactor
       Whether the calling application supports two-factor authentication. If this
@@ -178,11 +178,11 @@ class Iface(object):
     
     @param consumerKey
       The "consumer key" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param consumerSecret
       The "consumer secret" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param deviceIdentifier
       An optional string, no more than 32 characters in length, that uniquely identifies
@@ -577,11 +577,11 @@ class Client(Iface):
     
     @param consumerKey
       The "consumer key" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param consumerSecret
       The "consumer secret" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param supportsTwoFactor
       Whether the calling application supports two-factor authentication. If this
@@ -677,11 +677,11 @@ class Client(Iface):
     
     @param consumerKey
       The "consumer key" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param consumerSecret
       The "consumer secret" portion of the API key issued to the client application
-      by calibre_plugins.everlit.deps.evernote.
+      by calibre_plugins.read_once.deps.evernote.
     
     @param deviceIdentifier
       An optional string, no more than 32 characters in length, that uniquely identifies
@@ -1243,9 +1243,9 @@ class Processor(Iface, TProcessor):
     result = authenticate_result()
     try:
       result.success = self._handler.authenticate(args.username, args.password, args.consumerKey, args.consumerSecret, args.supportsTwoFactor)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("authenticate", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1259,9 +1259,9 @@ class Processor(Iface, TProcessor):
     result = authenticateLongSession_result()
     try:
       result.success = self._handler.authenticateLongSession(args.username, args.password, args.consumerKey, args.consumerSecret, args.deviceIdentifier, args.deviceDescription, args.supportsTwoFactor)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("authenticateLongSession", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1275,9 +1275,9 @@ class Processor(Iface, TProcessor):
     result = completeTwoFactorAuthentication_result()
     try:
       result.success = self._handler.completeTwoFactorAuthentication(args.authenticationToken, args.oneTimeCode, args.deviceIdentifier, args.deviceDescription)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("completeTwoFactorAuthentication", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1291,9 +1291,9 @@ class Processor(Iface, TProcessor):
     result = revokeLongSession_result()
     try:
       self._handler.revokeLongSession(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("revokeLongSession", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1307,9 +1307,9 @@ class Processor(Iface, TProcessor):
     result = authenticateToBusiness_result()
     try:
       result.success = self._handler.authenticateToBusiness(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("authenticateToBusiness", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1323,9 +1323,9 @@ class Processor(Iface, TProcessor):
     result = refreshAuthentication_result()
     try:
       result.success = self._handler.refreshAuthentication(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("refreshAuthentication", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1339,9 +1339,9 @@ class Processor(Iface, TProcessor):
     result = getUser_result()
     try:
       result.success = self._handler.getUser(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("getUser", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1355,11 +1355,11 @@ class Processor(Iface, TProcessor):
     result = getPublicUserInfo_result()
     try:
       result.success = self._handler.getPublicUserInfo(args.username)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMNotFoundException, notFoundException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMNotFoundException, notFoundException:
       result.notFoundException = notFoundException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
     oprot.writeMessageBegin("getPublicUserInfo", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1373,9 +1373,9 @@ class Processor(Iface, TProcessor):
     result = getPremiumInfo_result()
     try:
       result.success = self._handler.getPremiumInfo(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("getPremiumInfo", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1389,9 +1389,9 @@ class Processor(Iface, TProcessor):
     result = getNoteStoreUrl_result()
     try:
       result.success = self._handler.getNoteStoreUrl(args.authenticationToken)
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, userException:
       result.userException = userException
-    except calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
+    except calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, systemException:
       result.systemException = systemException
     oprot.writeMessageBegin("getNoteStoreUrl", TMessageType.REPLY, seqid)
     result.write(oprot)
@@ -1782,8 +1782,8 @@ class authenticate_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (AuthenticationResult, AuthenticationResult.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -1808,13 +1808,13 @@ class authenticate_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2000,8 +2000,8 @@ class authenticateLongSession_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (AuthenticationResult, AuthenticationResult.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -2026,13 +2026,13 @@ class authenticateLongSession_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2182,8 +2182,8 @@ class completeTwoFactorAuthentication_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (AuthenticationResult, AuthenticationResult.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -2208,13 +2208,13 @@ class completeTwoFactorAuthentication_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2327,8 +2327,8 @@ class revokeLongSession_result(object):
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, userException=None, systemException=None,):
@@ -2346,13 +2346,13 @@ class revokeLongSession_result(object):
         break
       if fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2462,8 +2462,8 @@ class authenticateToBusiness_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (AuthenticationResult, AuthenticationResult.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -2488,13 +2488,13 @@ class authenticateToBusiness_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2608,8 +2608,8 @@ class refreshAuthentication_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (AuthenticationResult, AuthenticationResult.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -2634,13 +2634,13 @@ class refreshAuthentication_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2753,9 +2753,9 @@ class getUser_result(object):
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (calibre_plugins.everlit.deps.evernote.edam.type.ttypes.User, calibre_plugins.everlit.deps.evernote.edam.type.ttypes.User.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (0, TType.STRUCT, 'success', (calibre_plugins.read_once.deps.evernote.edam.type.ttypes.User, calibre_plugins.read_once.deps.evernote.edam.type.ttypes.User.thrift_spec), None, ), # 0
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -2774,19 +2774,19 @@ class getUser_result(object):
         break
       if fid == 0:
         if ftype == TType.STRUCT:
-          self.success = calibre_plugins.everlit.deps.evernote.edam.type.ttypes.User()
+          self.success = calibre_plugins.read_once.deps.evernote.edam.type.ttypes.User()
           self.success.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -2901,9 +2901,9 @@ class getPublicUserInfo_result(object):
 
   thrift_spec = (
     (0, TType.STRUCT, 'success', (PublicUserInfo, PublicUserInfo.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'notFoundException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMNotFoundException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMNotFoundException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
-    (3, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 3
+    (1, TType.STRUCT, 'notFoundException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMNotFoundException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMNotFoundException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (3, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 3
   )
 
   def __init__(self, success=None, notFoundException=None, systemException=None, userException=None,):
@@ -2929,19 +2929,19 @@ class getPublicUserInfo_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.notFoundException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMNotFoundException()
+          self.notFoundException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMNotFoundException()
           self.notFoundException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 3:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -3058,9 +3058,9 @@ class getPremiumInfo_result(object):
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (calibre_plugins.everlit.deps.evernote.edam.type.ttypes.PremiumInfo, calibre_plugins.everlit.deps.evernote.edam.type.ttypes.PremiumInfo.thrift_spec), None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (0, TType.STRUCT, 'success', (calibre_plugins.read_once.deps.evernote.edam.type.ttypes.PremiumInfo, calibre_plugins.read_once.deps.evernote.edam.type.ttypes.PremiumInfo.thrift_spec), None, ), # 0
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -3079,19 +3079,19 @@ class getPremiumInfo_result(object):
         break
       if fid == 0:
         if ftype == TType.STRUCT:
-          self.success = calibre_plugins.everlit.deps.evernote.edam.type.ttypes.PremiumInfo()
+          self.success = calibre_plugins.read_once.deps.evernote.edam.type.ttypes.PremiumInfo()
           self.success.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
@@ -3205,8 +3205,8 @@ class getNoteStoreUrl_result(object):
 
   thrift_spec = (
     (0, TType.STRING, 'success', None, None, ), # 0
-    (1, TType.STRUCT, 'userException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
-    (2, TType.STRUCT, 'systemException', (calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
+    (1, TType.STRUCT, 'userException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException.thrift_spec), None, ), # 1
+    (2, TType.STRUCT, 'systemException', (calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException, calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException.thrift_spec), None, ), # 2
   )
 
   def __init__(self, success=None, userException=None, systemException=None,):
@@ -3230,13 +3230,13 @@ class getNoteStoreUrl_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.userException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMUserException()
+          self.userException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMUserException()
           self.userException.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 2:
         if ftype == TType.STRUCT:
-          self.systemException = calibre_plugins.everlit.deps.evernote.edam.error.ttypes.EDAMSystemException()
+          self.systemException = calibre_plugins.read_once.deps.evernote.edam.error.ttypes.EDAMSystemException()
           self.systemException.read(iprot)
         else:
           iprot.skip(ftype)
