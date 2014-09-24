@@ -6,15 +6,15 @@
 #  options string: py:new_style
 #
 
-from calibre_plugins.read_once.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
-import calibre_plugins.read_once.deps.evernote.edam.type.ttypes
-import calibre_plugins.read_once.deps.evernote.edam.error.ttypes
+from calibre_plugins.calibrebeam.deps.thrift.Thrift import TType, TMessageType, TException, TApplicationException
+import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes
+import calibre_plugins.calibrebeam.deps.evernote.edam.error.ttypes
 
 
-from calibre_plugins.read_once.deps.thrift.transport import TTransport
-from calibre_plugins.read_once.deps.thrift.protocol import TBinaryProtocol, TProtocol
+from calibre_plugins.calibrebeam.deps.thrift.transport import TTransport
+from calibre_plugins.calibrebeam.deps.thrift.protocol import TBinaryProtocol, TProtocol
 try:
-  from calibre_plugins.read_once.deps.thrift.protocol import fastbinary
+  from calibre_plugins.calibrebeam.deps.thrift.protocol import fastbinary
 except:
   fastbinary = None
 
@@ -266,7 +266,7 @@ class AuthenticationResult(object):
     (1, TType.I64, 'currentTime', None, None, ), # 1
     (2, TType.STRING, 'authenticationToken', None, None, ), # 2
     (3, TType.I64, 'expiration', None, None, ), # 3
-    (4, TType.STRUCT, 'user', (calibre_plugins.read_once.deps.evernote.edam.type.ttypes.User, calibre_plugins.read_once.deps.evernote.edam.type.ttypes.User.thrift_spec), None, ), # 4
+    (4, TType.STRUCT, 'user', (calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes.User, calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes.User.thrift_spec), None, ), # 4
     (5, TType.STRUCT, 'publicUserInfo', (PublicUserInfo, PublicUserInfo.thrift_spec), None, ), # 5
     (6, TType.STRING, 'noteStoreUrl', None, None, ), # 6
     (7, TType.STRING, 'webApiUrlPrefix', None, None, ), # 7

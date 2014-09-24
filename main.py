@@ -15,16 +15,16 @@ if False:
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
-from calibre_plugins.read_once.config import prefs
-import calibre_plugins.read_once.deps.evernote.edam.userstore.constants as UserStoreConstants
-import calibre_plugins.read_once.deps.evernote.edam.type.ttypes as Types
+from calibre_plugins.calibrebeam.config import prefs
+import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
+import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import iswindows        
 
-class read_onceDialog(QDialog):
+class calibrebeamDialog(QDialog):
     
     def __init__(self, gui, icon, do_user_config):
-        self.SENT_STAMP = '<p class="read_onceStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
+        self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
         self.gui = gui
@@ -43,7 +43,7 @@ class read_onceDialog(QDialog):
         self.label = QLabel(prefs['hello_world_msg'])
         self.l.addWidget(self.label)
 
-        self.setWindowTitle('I Read Once Evernote Sync')
+        self.setWindowTitle('Calibrebeam Evernote Sync')
         self.setWindowIcon(icon)
         self.initButtons()
         self.resize(self.sizeHint())
@@ -54,12 +54,12 @@ class read_onceDialog(QDialog):
         self.l.addWidget(self.about_button)
 
         self.sync_highlighted_button = QPushButton(
-            'Send Highlighted', self)
+            'Beam Highlighted', self)
         self.sync_highlighted_button.clicked.connect(self.send_selected_highlights_to_evernote)
         self.l.addWidget(self.sync_highlighted_button)
 
         self.send_new_button = QPushButton(
-            'Send All Unsent Annotations', self)
+            'Beam All Unsent Annotations', self)
         self.send_new_button.clicked.connect(self.send_only_new_highlights_to_evernote)
         self.l.addWidget(self.send_new_button)
 
@@ -74,15 +74,15 @@ class read_onceDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About I Read Once',
+        QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
         
     def connect_to_evernote(self):
         #from calibre.ebooks.metadata.meta import set_metadata
         #####
-        from calibre_plugins.read_once.deps.evernote.api.client import EvernoteClient
-        import calibre_plugins.read_once.deps.evernote.edam.userstore.constants as UserStoreConstants
-        import calibre_plugins.read_once.deps.evernote.edam.type.ttypes as Types
+        from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
+        import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
+        import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
         
         auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
         self.client = EvernoteClient(token=auth_token, sandbox=True)
@@ -94,14 +94,14 @@ class read_onceDialog(QDialog):
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, 'Cannot send books to Evernote',
+            return error_dialog(self.gui, 'Cannot beam highlights to Evernote',
                              'No books selected', show=True)
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
         for book_id in ids:
             self.send_book_to_evernote(book_id)
         info_dialog(self, 'Updated files',
-                'sent %d book highlights to Evernote!'%len(ids),
+                'beamed %d book highlights to Evernote!'%len(ids),
                 show=True)
         
     def send_only_new_highlights_to_evernote(self):
@@ -110,7 +110,7 @@ class read_onceDialog(QDialog):
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, 'Cannot send books to Evernote',
+            return error_dialog(self.gui, 'Cannot beam highlights to Evernote',
                              'No books selected', show=True)
         # Map the rows to book ids
         #ids = list(map(self.gui.library_view.model().id, rows))

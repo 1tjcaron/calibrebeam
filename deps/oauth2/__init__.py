@@ -29,7 +29,7 @@ import random
 import urlparse
 import hmac
 import binascii
-import calibre_plugins.read_once.deps.httplib2 as httplib2
+import calibre_plugins.calibrebeam.deps.httplib2 as httplib2
 
 try:
     from urlparse import parse_qs

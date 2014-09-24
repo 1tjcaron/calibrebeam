@@ -24,9 +24,9 @@ import traceback
 import threading
 import Queue
 
-from calibre_plugins.read_once.deps.thrift.Thrift import TProcessor
-from calibre_plugins.read_once.deps.thrift.transport import TTransport
-from calibre_plugins.read_once.deps.thrift.protocol import TBinaryProtocol
+from calibre_plugins.calibrebeam.deps.thrift.Thrift import TProcessor
+from calibre_plugins.calibrebeam.deps.thrift.transport import TTransport
+from calibre_plugins.calibrebeam.deps.thrift.protocol import TBinaryProtocol
 
 class TServer:
 

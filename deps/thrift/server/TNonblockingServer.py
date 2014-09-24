@@ -30,8 +30,8 @@ import select
 import struct
 import logging
 
-from calibre_plugins.read_once.deps.thrift.transport import TTransport
-from calibre_plugins.read_once.deps.thrift.protocol.TBinaryProtocol import TBinaryProtocolFactory
+from calibre_plugins.calibrebeam.deps.thrift.transport import TTransport
+from calibre_plugins.calibrebeam.deps.thrift.protocol.TBinaryProtocol import TBinaryProtocolFactory
 
 __all__ = ['TNonblockingServer']
 

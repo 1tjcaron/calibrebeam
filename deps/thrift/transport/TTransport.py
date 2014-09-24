@@ -19,7 +19,7 @@
 
 from cStringIO import StringIO
 from struct import pack,unpack
-from calibre_plugins.read_once.deps.thrift.Thrift import TException
+from calibre_plugins.calibrebeam.deps.thrift.Thrift import TException
 
 class TTransportException(TException):
 

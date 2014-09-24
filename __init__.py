@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
-class read_onceAction(InterfaceActionBase):
+class calibrebeamAction(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the actual
     plugin class. The actual interface plugin class is called InterfacePlugin
@@ -30,7 +30,7 @@ class read_onceAction(InterfaceActionBase):
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.read_once.ui:EvernoteSyncPlugin'
+    actual_plugin       = 'calibre_plugins.calibrebeam.ui:EvernoteSyncPlugin'
 
     def is_customizable(self):
         '''
@@ -61,7 +61,7 @@ class read_onceAction(InterfaceActionBase):
         # top of the module as importing the config class will also cause the
         # GUI libraries to be loaded, which we do not want when using calibre
         # from the command line
-        from calibre_plugins.read_once.config import ConfigWidget
+        from calibre_plugins.calibrebeam.config import ConfigWidget
         return ConfigWidget()
 
     def save_settings(self, config_widget):
