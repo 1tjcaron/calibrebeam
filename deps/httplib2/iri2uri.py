@@ -68,6 +68,9 @@ def iri2uri(uri):
     the IRI before passing it into the function.""" 
     if isinstance(uri ,unicode):
         (scheme, authority, path, query, fragment) = urlparse.urlsplit(uri)
+        print scheme
+        print authority
+        print path
         authority = authority.encode('idna')
         # For each character in 'ucschar' or 'iprivate'
         #  1. encode as utf-8

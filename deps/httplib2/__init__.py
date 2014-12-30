@@ -1040,7 +1040,7 @@ class Http(object):
 and more.
     """
     def __init__(self, cache=None, timeout=None, proxy_info=None,
-                 ca_certs=None, disable_ssl_certificate_validation=False):
+                 ca_certs=None, disable_ssl_certificate_validation=True):
         """
         The value of proxy_info is a ProxyInfo instance.
 
@@ -1213,6 +1213,8 @@ and more.
 
         if (self.follow_all_redirects or (method in ["GET", "HEAD"]) or response.status == 303):
             if self.follow_redirects and response.status in [300, 301, 302, 303, 307]:
+                print response
+                print response.status
                 # Pick out the location header and basically start from the beginning
                 # remembering first to strip the ETag header and decrement our 'depth'
                 if redirections:
@@ -1241,7 +1243,7 @@ and more.
                         redirect_method = method
                         if response.status in [302, 303]:
                             redirect_method = "GET"
-                            body = None
+                            body = ''
                         (response, content) = self.request(location, redirect_method, body=body, headers = headers, redirections = redirections - 1)
                         response.previous = old_response
                 else:

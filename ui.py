@@ -16,7 +16,7 @@ if False:
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.calibrebeam.main import calibrebeamDialog
-from PyQt4.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
+from PyQt5.Qt import (pyqtSignal, Qt, QApplication, QIcon, QMenu, QPixmap,
                       QTimer, QToolButton)
  
 class EvernoteSyncPlugin(InterfaceAction):

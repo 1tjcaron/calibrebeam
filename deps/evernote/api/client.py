@@ -33,7 +33,7 @@ class EvernoteClient(object):
         client = self._get_oauth_client()
         request_url = '%s?oauth_callback=%s' % (
             self._get_endpoint('oauth'), urllib.quote(callback_url))
-
+        print(request_url)
         resp, content = client.request(request_url, 'GET')
         request_token = dict(urlparse.parse_qsl(content))
         return request_token
@@ -96,6 +96,8 @@ class EvernoteClient(object):
         return store
 
     def _get_oauth_client(self, token=None):
+        print(self.consumer_key)
+        print(self.consumer_secret)
         consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
         if token:
             client = oauth.Client(consumer, token)

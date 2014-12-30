@@ -20,7 +20,7 @@ class calibrebeamAction(InterfaceActionBase):
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
     '''
-    name                = 'I Read Once'
+    name                = 'calibre beam'
     description         = 'Sync ereader highlights with evernote!'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Thomas Caron'

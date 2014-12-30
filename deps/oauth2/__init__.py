@@ -350,6 +350,7 @@ class Request(dict):
                 v = to_unicode_optional_iterator(v)
                 self[k] = v
         self.body = body
+        print 'initialized body:' + body
         self.is_form_encoded = is_form_encoded
 
 
@@ -490,6 +491,7 @@ class Request(dict):
             # section 4.1.1 "OAuth Consumers MUST NOT include an
             # oauth_body_hash parameter on requests with form-encoded
             # request bodies."
+            print self.body
             self['oauth_body_hash'] = base64.b64encode(sha(self.body).digest())
 
         if 'oauth_consumer_key' not in self:
@@ -655,6 +657,7 @@ class Client(httplib2.Http):
         else:
             parameters = None
 
+        print "backtrack" + body
         req = Request.from_consumer_and_token(self.consumer, 
             token=self.token, http_method=method, http_url=uri, 
             parameters=parameters, body=body, is_form_encoded=is_form_encoded)
@@ -676,7 +679,7 @@ class Client(httplib2.Http):
             uri = req.to_url()
         else:
             headers.update(req.to_header(realm=realm))
-
+        #TODO:here why
         return httplib2.Http.request(self, uri, method=method, body=body,
             headers=headers, redirections=redirections,
             connection_type=connection_type)

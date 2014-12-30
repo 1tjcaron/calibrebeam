@@ -7,23 +7,31 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-if False:
-    # This is here to keep my python error checker from complaining about
-    # the builtin functions that will be defined by the plugin loading system
-    # You do not need this code in your plugins
-    get_icons = get_resources = None
+import urlparse, traceback
+from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QUrl
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
-
+from calibre import prints
+from calibre.constants import DEBUG
 from calibre_plugins.calibrebeam.config import prefs
 import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
 import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
+import calibre_plugins.calibrebeam.deps.oauth2 as oauth
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.constants import iswindows        
+from calibre.constants import iswindows   
+from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url     
+import calibre_plugins.calibrebeam.config as cfg
+
+URL = 'https://sandbox.evernote.com'
+#URL = 'http://www.goodreads.com'
+#URL_HTTPS = 'https://www.goodreads.com'
+STORE_USERS = 'Users'
+KEY_USER_ID = 'userId'
+KEY_USER_TOKEN = 'userToken'
+KEY_USER_SECRET = 'userSecret'
 
 class calibrebeamDialog(QDialog):
     
-    def __init__(self, gui, icon, do_user_config):
+    def __init__(self, gui, icon, do_user_config):#TODO: edit to be per user stamp?
         self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
@@ -42,6 +50,9 @@ class calibrebeamDialog(QDialog):
 
         self.label = QLabel(prefs['hello_world_msg'])
         self.l.addWidget(self.label)
+        
+        self.devkey_token = "1tjcaron-3617"
+        self.devkey_secret = "5f3e4368a027d923"
 
         self.setWindowTitle('Calibrebeam Evernote Sync')
         self.setWindowIcon(icon)
@@ -62,6 +73,11 @@ class calibrebeamDialog(QDialog):
             'Beam All Unsent Annotations', self)
         self.send_new_button.clicked.connect(self.send_only_new_highlights_to_evernote)
         self.l.addWidget(self.send_new_button)
+        
+        self.login_button = QPushButton(
+            'login', self)
+        self.login_button.clicked.connect(self.authorize_plugin)
+        self.l.addWidget(self.login_button)
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -76,6 +92,118 @@ class calibrebeamDialog(QDialog):
         text = get_resources('about.txt')
         QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
+    #TODO: oauth    
+    def authorize_plugin(self):
+        from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
+        import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
+        import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
+        #auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
+        
+        client = EvernoteClient(consumer_key=self.devkey_token,consumer_secret=self.devkey_secret, sandbox=True)
+        self.client = client
+        req_token = client.get_request_token(URL)
+        authorize_link = client.get_authorize_url(req_token)
+        open_url(QUrl(authorize_link))
+        self.client.get_access_token(req_token.)
+        # Display dialog waiting for the user to confirm they have authorized in web browser
+        if not question_dialog(self, 'Confirm Authorization', '<p>'+
+                'Have you clicked \'Allow access\' for this plugin on the evernote website?'):
+            return
+        
+    def authorize_plugin2(self):
+        # Construct the authorization URL to open in a web browser
+        (request_token, request_secret) = self.get_request_token_secret()
+        if not request_token:
+            return
+        authorize_link = '%s/oauth/authorize/?oauth_token=%s' % (URL, request_token)
+        open_url(QUrl(authorize_link))
+        # Display dialog waiting for the user to confirm they have authorized in web browser
+        if not question_dialog(self, 'Confirm Authorization', '<p>'+
+                'Have you clicked \'Allow access\' for this plugin on the Goodreads website?'):
+            return
+        # If user has authorized, we can get their user token information
+        (user_token, user_secret) = self.get_user_token_secret(oauth_token=request_token,
+                                                                      oauth_secret=request_secret)
+        if not user_token:
+            return
+        user_info = self.users[self.user_name]
+        user_info[KEY_USER_TOKEN] = user_token
+        user_info[KEY_USER_SECRET] = user_secret
+
+        # Now also retrieve the Goodreads user id so we can use it in web queries
+        user_id = self.get_goodreads_user_id(oauth_token=user_token, oauth_secret=user_secret)
+        if not user_id:
+            return error_dialog(self, 'Goodreads failure', 'Unable to obtain the user id', show=True)
+        user_info[KEY_USER_ID] = user_id
+
+        # Read the list of shelves for this user
+        self.refresh_shelves_list()
+        
+    def get_request_token_secret(self):
+        # Returns (token, secret) for authorizing a user
+        #REQUEST_TOKEN_URL = '%s/oauth/request_token' % cfg.URL
+        REQUEST_TOKEN_URL = '%s/oauth' % URL
+        #REQUEST_TOKEN_URL = REQUEST_TOKEN_URL + "?oauth_callback=https://www.evernote.com"
+        
+        oauth_client = self.create_oauth_client()
+        response, content = self._oauth_request_get(oauth_client, REQUEST_TOKEN_URL)
+        if not response:
+            return None, None
+        request_token = dict(urlparse.parse_qsl(content))
+        for key, value in request_token.iteritems() :
+            if"oauth"in key:
+                print(key, value)
+        #print("response: " + response)
+        return (request_token['oauth_token'], request_token['oauth_token_secret'])
+    
+    def create_oauth_client(self, user_name=None, oauth_token=None, oauth_secret=None):
+        consumer = oauth.Consumer(key=self.devkey_token,
+                                  secret=self.devkey_secret)
+        # Callers can either specify the token/secret if known, or lookup
+        # in the config store for that user name if known.
+        #TODO: remove, fucked this all up
+        user_name = 'tc'
+        if user_name:
+            #users = cfg.prefs[STORE_USERS]
+            #TODO: remove
+            users = {user_name:{KEY_USER_TOKEN:'1tjcaron-3617', KEY_USER_SECRET:'5f3e4368a027d923'}}
+            user_info = users[user_name]
+            oauth_token = user_info[KEY_USER_TOKEN]
+            oauth_secret = user_info[KEY_USER_SECRET]
+        if oauth_token:#TODO: import calibre_plugins.goodreads_sync.oauth2 as oauth
+            token = oauth.Token(oauth_token, oauth_secret)
+            return oauth.Client(consumer, token)
+        else:
+            return oauth.Client(consumer)
+        
+    def _oauth_request_get(self, oauth_client, url, success_status='200'):
+        # Perform a GET request using the supplied oauth client.
+        try:
+            if self.gui:
+                self.gui.status_bar.showMessage('Communicating with Goodreads...')
+
+            headers = {'Accept-Encoding': 'gzip'}
+            response, content = oauth_client.request(url, 'GET', headers=headers) #need header here??? PARAM rather
+            if response['status'] != success_status:
+                return self._handle_failure(response, content, url)
+            return (response, content)
+        finally:
+            if self.gui:
+                self.gui.status_bar.clearMessage()
+            
+    def _handle_failure(self, response, content, url):
+        if True:
+            prints('Goodreads failure calling: %s' % url)
+            prints('Response: %s' % response)
+            prints('Content: %s' % content)
+            traceback.print_stack()
+        detail = 'URL: ' + url + '\nResponse Code: ' + response['status'] +'\n' + content
+        error_dialog(self.gui, 'Goodreads Failure',
+                     'The request contacting Goodreads has failed. Please try again.',
+                     det_msg=detail, show=True)
+        return (None, None)
+
+    ##OAUTH OUT
         
     def connect_to_evernote(self):
         #from calibre.ebooks.metadata.meta import set_metadata
@@ -84,9 +212,10 @@ class calibrebeamDialog(QDialog):
         import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
         import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
         
-        auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
-        self.client = EvernoteClient(token=auth_token, sandbox=True)
+        #auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
+        #self.client = EvernoteClient(token=auth_token, sandbox=True)
         self.note_store = self.client.get_note_store()
+        
         
     def send_selected_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
