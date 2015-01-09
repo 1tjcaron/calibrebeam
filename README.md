@@ -1,4 +1,4 @@
-read_once
+calibrebeam
 =============
 
 sync calibre columns to evernote
