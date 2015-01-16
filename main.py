@@ -31,7 +31,8 @@ KEY_USER_SECRET = 'userSecret'
 
 class calibrebeamDialog(QDialog):
     
-    def __init__(self, gui, icon, do_user_config):#TODO: edit to be per user stamp?
+    def __init__(self, gui, icon, do_user_config):
+#TODO: edit to be per user stamp?
         self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
@@ -92,20 +93,18 @@ class calibrebeamDialog(QDialog):
         text = get_resources('about.txt')
         QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
-    #TODO: oauth    
+ 
     def authorize_plugin(self):
         from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
         import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
         import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
-        #auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
         
         client = EvernoteClient(consumer_key=self.devkey_token,consumer_secret=self.devkey_secret, sandbox=True)
         self.client = client
         req_token = client.get_request_token(URL)
         authorize_link = client.get_authorize_url(req_token)
-        #open_url(QUrl(authorize_link))
-        
-        #self.client.get_access_token(req_token.)
+        open_url(QUrl(authorize_link))
+
         # Display dialog waiting for the user to confirm they have authorized in web browser
         if not question_dialog(self, 'Confirm Authorization', '<p>'+
                 'Have you clicked \'Allow access\' for this plugin on the evernote website?'):
@@ -121,12 +120,14 @@ class calibrebeamDialog(QDialog):
         import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
         from calibre_plugins.calibrebeam.deps.geeknote.oauth import GeekNoteAuth
         GNA = GeekNoteAuth()
-        auth_token = GNA.getToken()
+        #TODO: should not hardcode these.....
+        username = "1tjcaron"
+        password = ""
+        auth_token = GNA.getToken(username, password)
         if auth_token == "ERROR":
             return "ERROR"
-        #auth_token = "S=s1:U=8e1d5:E=14cb7e8430d:C=1456037170f:P=1cd:A=en-devtoken:V=2:H=71043307034f4095ecf279d9094b3985"
-        self.client = EvernoteClient(token=auth_token, sandbox=True)
-        self.note_store = self.client.get_note_store()
+        client = EvernoteClient(token=auth_token, sandbox=True)
+        self.note_store = client.get_note_store()
         
         
     def send_selected_highlights_to_evernote(self):

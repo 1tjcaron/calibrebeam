@@ -7,11 +7,10 @@ import uuid
 from urllib import urlencode, unquote
 from urlparse import urlparse
 
-#import out
-#import tools
-#import config
-#from log import logging
 import logging
+
+#FORMAT = "%(filename)s %(funcName)s %(lineno)d : %(message)s"
+#logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
 
 class Struct:
@@ -81,6 +80,7 @@ class GeekNoteAuth(object):
         if not url:
             logging.error("Request URL undefined")
             self.exitErr = True
+            return
 
         if not uri:
             urlData = urlparse(url)
@@ -133,28 +133,28 @@ class GeekNoteAuth(object):
         data = unquote(data)
         return dict(item.split('=', 1) for item in data.split('?')[-1].split('&'))
 
-    def getToken(self):
+    def getToken(self, username, password):
         #out.preloader.setMessage('Authorize...')
         self.getTmpOAuthToken()
         if self.exitErr:
-            print("getTmpOAuthToken")
+            logging.error("getTmpOAuthToken")
             return "ERROR"
 
-        self.login()
+        self.login(username, password)
         if self.exitErr:
-            print("login")
+            logging.error("login")
             return "ERROR"
 
         #out.preloader.setMessage('Allow Access...')
         self.allowAccess()
         if self.exitErr:
-            print("allowAccess")
+            logging.error("allowAccess")
             return "ERROR"
 
         #out.preloader.setMessage('Getting Token...')
         self.getOAuthToken()
         if self.exitErr:
-            print("getOAuthToken")
+            logging.error("getOAuthToken")
             return "ERROR"
 
         #out.preloader.stop()
@@ -188,9 +188,9 @@ class GeekNoteAuth(object):
         response = self.loadPage(self.url['base'], self.url['tfa']+";jsessionid="+self.cookies['JSESSIONID'], "POST", self.postData['tfa'])
         if not response.location and response.status == 200:
             if self.incorrectCode < 3:
-                out.preloader.stop()
-                out.printLine('Sorry, incorrect two factor code')
-                out.preloader.setMessage('Authorize...')
+                #out.preloader.stop()
+                #out.printLine('Sorry, incorrect two factor code')
+                #out.preloader.setMessage('Authorize...')
                 self.incorrectCode += 1
                 return self.handleTwoFactor()
             else:
@@ -200,7 +200,7 @@ class GeekNoteAuth(object):
             logging.error("Target URL was not found in the response on login")
             self.exitErr = True
 
-    def login(self):
+    def login(self,username, password):
         response = self.loadPage(self.url['base'],
                                  self.url['login'],
                                  "GET",
@@ -210,17 +210,19 @@ class GeekNoteAuth(object):
             logging.error("Unexpected response status "
                           "on login 200 != %s", response.status)
             self.exitErr = True
+            return
 
         if 'JSESSIONID' not in self.cookies:
             logging.error("Not found value JSESSIONID in the response cookies")
             self.exitErr = True
+            return
 
         # get login/password
-        #self.username, self.password = out.GetUserCredentials()
-        self.username, self.password = "s","p"
+        #TODO: let's remove this storage - no need, i feel insecure about it
+        self.username, self.password = username, password
 
-        self.postData['login']['username'] = self.username
-        self.postData['login']['password'] = self.password
+        self.postData['login']['username'] = username
+        self.postData['login']['password'] = password
         self.postData['login']['targetUrl'] = self.url['oauth'] % self.tmpOAuthToken
         response = self.loadPage(self.url['base'],
                                  self.url['login'] + ";jsessionid=" + self.cookies['JSESSIONID'],
@@ -229,9 +231,6 @@ class GeekNoteAuth(object):
 
         if not response.location and response.status == 200:
             if self.incorrectLogin < 3:
-                #out.preloader.stop()
-                #out.printLine('Sorry, incorrect login or password')
-                #out.preloader.setMessage('Authorize...')
                 self.incorrectLogin += 1
                 return self.login()
             else:
@@ -240,11 +239,15 @@ class GeekNoteAuth(object):
         if not response.location:
             logging.error("Target URL was not found in the response on login")
             self.exitErr = True
+            return
 
-        if response.status == 302:
+#TODO: reconsider this http status code -> what indicates 2 factor is needed?
+#TODO: however this is only for premium users -> not so much of a concern?
+        #if response.status == 302:
             # the user has enabled two factor auth
             #return self.handleTwoFactor()
-            self.exitErr = True
+            #self.exitErr = True
+            #return
 
         logging.debug("Success authorize, redirect to access page")
 
@@ -262,11 +265,13 @@ class GeekNoteAuth(object):
             logging.error("Unexpected response status on allowing "
                           "access 302 != %s", response.status)
             self.exitErr = True
+            return
 
         responseData = self.parseResponse(response.location)
         if 'oauth_verifier' not in responseData:
             logging.error("OAuth verifier not found")
             self.exitErr = True
+            return
 
         self.verifierToken = responseData['oauth_verifier']
 
@@ -286,11 +291,13 @@ class GeekNoteAuth(object):
             logging.error("Unexpected response status on "
                           "getting oauth token 200 != %s", response.status)
             self.exitErr = True
+            return
 
         responseData = self.parseResponse(response.data)
         if 'oauth_token' not in responseData:
             logging.error("OAuth token not found")
             self.exitErr = True
+            return
 
         logging.debug("OAuth token take : %s", responseData['oauth_token'])
         self.OAuthToken = responseData['oauth_token']
