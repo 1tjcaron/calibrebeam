@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import urlparse, traceback
-from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QUrl
+from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QUrl, QInputDialog, QDir
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -22,8 +22,8 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url
 import calibre_plugins.calibrebeam.config as cfg
 
 URL = 'https://sandbox.evernote.com'
-#URL = 'http://www.goodreads.com'
-#URL_HTTPS = 'https://www.goodreads.com'
+# URL = 'http://www.goodreads.com'
+# URL_HTTPS = 'https://www.goodreads.com'
 STORE_USERS = 'Users'
 KEY_USER_ID = 'userId'
 KEY_USER_TOKEN = 'userToken'
@@ -32,7 +32,7 @@ KEY_USER_SECRET = 'userSecret'
 class calibrebeamDialog(QDialog):
     
     def __init__(self, gui, icon, do_user_config):
-#TODO: edit to be per user stamp?
+# TODO: edit to be per user stamp?
         self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
         QDialog.__init__(self, gui)
@@ -93,25 +93,42 @@ class calibrebeamDialog(QDialog):
         text = get_resources('about.txt')
         QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
- 
-    def authorize_plugin(self):
-        from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
-        import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
-        import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
-        
-        client = EvernoteClient(consumer_key=self.devkey_token,consumer_secret=self.devkey_secret, sandbox=True)
-        self.client = client
-        req_token = client.get_request_token(URL)
-        authorize_link = client.get_authorize_url(req_token)
-        open_url(QUrl(authorize_link))
 
-        # Display dialog waiting for the user to confirm they have authorized in web browser
-        if not question_dialog(self, 'Confirm Authorization', '<p>'+
-                'Have you clicked \'Allow access\' for this plugin on the evernote website?'):
-            return
-        
-    ##OAUTH OUT
-        
+
+    def authorize_plugin(self):
+        username, ok_u = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote Username:')
+        if not ok_u:
+            return "", ""
+        password, ok_p = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote password:')
+        if not ok_p:
+            return "", ""
+        permission_msg = u'''
+        Do you want to allow calibrebeam to:
+            \u2022 Create notes, notebooks and tags.
+            \u2022 List notebooks and tags.
+        '''
+        if not question_dialog(self, 'Allow Access', permission_msg):
+            return "", ""
+
+
+#     ##OAUTH OUT
+# def authorize_plugin(self):
+#     from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
+#     import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
+#     import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
+#
+#     client = EvernoteClient(consumer_key=self.devkey_token,consumer_secret=self.devkey_secret, sandbox=True)
+#     self.client = client
+#     req_token = client.get_request_token(URL)
+#     authorize_link = client.get_authorize_url(req_token)
+#     open_url(QUrl(authorize_link))
+#
+#     # Display dialog waiting for the user to confirm they have authorized in web browser
+#     if not question_dialog(self, 'Confirm Authorization', '<p>'+
+#             'Have you clicked \'Allow access\' for this plugin on the evernote website?'):
+#         return
+
+
     def connect_to_evernote(self):
         #from calibre.ebooks.metadata.meta import set_metadata
         #####
@@ -120,9 +137,7 @@ class calibrebeamDialog(QDialog):
         import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
         from calibre_plugins.calibrebeam.deps.geeknote.oauth import GeekNoteAuth
         GNA = GeekNoteAuth()
-        #TODO: should not hardcode these.....
-        username = "1tjcaron"
-        password = ""
+        username, password = self.authorize_plugin()
         auth_token = GNA.getToken(username, password)
         if auth_token == "ERROR":
             return "ERROR"
