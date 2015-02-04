@@ -7,34 +7,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import urlparse, traceback
+
 from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QUrl, QInputDialog, QDir
 
-from calibre import prints
-from calibre.constants import DEBUG
 from calibre_plugins.calibrebeam.config import prefs
-import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
 import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
-import calibre_plugins.calibrebeam.deps.oauth2 as oauth
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.constants import iswindows   
 from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url     
 import calibre_plugins.calibrebeam.config as cfg
-
-URL = 'https://sandbox.evernote.com'
-# URL = 'http://www.goodreads.com'
-# URL_HTTPS = 'https://www.goodreads.com'
-STORE_USERS = 'Users'
-KEY_USER_ID = 'userId'
-KEY_USER_TOKEN = 'userToken'
-KEY_USER_SECRET = 'userSecret'
 
 class calibrebeamDialog(QDialog):
     
     def __init__(self, gui, icon, do_user_config):
-# TODO: edit to be per user stamp?
+        # TODO: edit to be per user stamp?
         self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
+        # self.auth_token = None
+        # self.username = None
+        # self.evernote.notebook = 'books'
+        # self.evernote.tag = "tag"
+        self.note_store = None
+
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -57,10 +50,11 @@ class calibrebeamDialog(QDialog):
 
         self.setWindowTitle('Calibrebeam Evernote Sync')
         self.setWindowIcon(icon)
-        self.initButtons()
+        self.init_buttons()
         self.resize(self.sizeHint())
-    
-    def initButtons(self):
+
+
+    def init_buttons(self):
         self.about_button = QPushButton('About', self)
         self.about_button.clicked.connect(self.about)
         self.l.addWidget(self.about_button)
@@ -77,8 +71,14 @@ class calibrebeamDialog(QDialog):
         
         self.login_button = QPushButton(
             'login', self)
-        self.login_button.clicked.connect(self.authorize_plugin)
+        self.login_button.clicked.connect(self.create_new_note_store)
         self.l.addWidget(self.login_button)
+
+        self.config_button = QPushButton(
+            'config', self)
+        self.config_button.clicked.connect(self.config)
+        self.l.addWidget(self.config_button)
+
 
     def about(self):
         # Get the about text from a file inside the plugin zip file
@@ -94,6 +94,9 @@ class calibrebeamDialog(QDialog):
         QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
 
+    def config(self):
+        from evernote_connect import ConfigWidget
+        ConfigWidget()
 
     def authorize_plugin(self):
         username, ok_u = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote Username:')
@@ -110,41 +113,38 @@ class calibrebeamDialog(QDialog):
         if not question_dialog(self, 'Allow Access', permission_msg):
             return "", ""
 
-
-#     ##OAUTH OUT
-# def authorize_plugin(self):
-#     from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
-#     import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
-#     import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
-#
-#     client = EvernoteClient(consumer_key=self.devkey_token,consumer_secret=self.devkey_secret, sandbox=True)
-#     self.client = client
-#     req_token = client.get_request_token(URL)
-#     authorize_link = client.get_authorize_url(req_token)
-#     open_url(QUrl(authorize_link))
-#
-#     # Display dialog waiting for the user to confirm they have authorized in web browser
-#     if not question_dialog(self, 'Confirm Authorization', '<p>'+
-#             'Have you clicked \'Allow access\' for this plugin on the evernote website?'):
-#         return
-
+        return username, password
 
     def connect_to_evernote(self):
-        #from calibre.ebooks.metadata.meta import set_metadata
-        #####
+        if self.note_store:
+            return
+        else:
+            self.create_note_store()
+
+    def create_note_store(self):
+        from calibre_plugins.calibrebeam.config import get_username_and_token
+        username, auth_token = get_username_and_token()
+        self.create_new_note_store(username, auth_token)
+
+    def create_new_note_store(self, username="", auth_token=""):
+        reset_stored_creds = False
+        if username == "" or auth_token == "":
+            reset_stored_creds = True
+            from calibre_plugins.calibrebeam.deps.geeknote.oauth import GeekNoteAuth
+            gna = GeekNoteAuth()
+            username, password = self.authorize_plugin()
+            auth_token = gna.getToken(username, password)
+            if auth_token == "ERROR":
+                # TODO: improve error handling
+                return "ERROR"
         from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
-        import calibre_plugins.calibrebeam.deps.evernote.edam.userstore.constants as UserStoreConstants
-        import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
-        from calibre_plugins.calibrebeam.deps.geeknote.oauth import GeekNoteAuth
-        GNA = GeekNoteAuth()
-        username, password = self.authorize_plugin()
-        auth_token = GNA.getToken(username, password)
-        if auth_token == "ERROR":
-            return "ERROR"
         client = EvernoteClient(token=auth_token, sandbox=True)
         self.note_store = client.get_note_store()
-        
-        
+        # if we successfully made a note store, then we should save this token for next bootup
+        if reset_stored_creds:
+            from calibre_plugins.calibrebeam.config import save_username_and_token
+            save_username_and_token(username, auth_token)
+
     def send_selected_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
         self.connect_to_evernote()
@@ -174,17 +174,18 @@ class calibrebeamDialog(QDialog):
         ids = self.db.new_api.all_book_ids()
         sent_count = 0
         for book_id in ids:
-            if self.send_book_to_evernote_ifNb(book_id, True):
+            if self.send_book_to_evernote_if_nb(book_id, True):
                 sent_count = sent_count + 1
         info_dialog(self, 'Updated files',
                 'sent %d book highlights to Evernote!'%sent_count,
                 show=True)
-        #from calibre.gui2 import error_dialog, info_dialog
+
         
     def send_book_to_evernote(self, book_id):
-        return self.send_book_to_evernote_ifNb(book_id, False)
+        return self.send_book_to_evernote_if_nb(book_id, False)
 
-    def send_book_to_evernote_ifNb(self, book_id, uses_send_filters):
+
+    def send_book_to_evernote_if_nb(self, book_id, uses_send_filters):
                 # Get the current metadata for this book from the db
         metadata = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
@@ -200,23 +201,26 @@ class calibrebeamDialog(QDialog):
         noteName = self.make_evernote_name(metadata)
         myAnnotations = self.make_evernote_content(metadata)
         self.create_note(noteName, myAnnotations, self.note_store)
-        self.stamp_annotations_ifNb(book_id)
+        self.stamp_annotations_if_nb(book_id)
         return True
-    
+
+
     def get_annotations_raw(self, book_id):
         metadata = self.db.get_metadata(book_id, index_is_id=True,
             get_cover=True, cover_as_data=True)
         return self.get_annotations_raw_from_metadata(metadata)
-    
+
+
     def get_annotations_raw_from_metadata(self, metadata):
         return metadata.get('comments')
-    
+
+
     def set_annotations_raw(self, book_id, annotations):
         self.db.set_comment(book_id, annotations)
         self.db.commit()
     
     #stamp annotations if need be
-    def stamp_annotations_ifNb(self, book_id):
+    def stamp_annotations_if_nb(self, book_id):
         annotes = self.get_annotations_raw(book_id) 
         annotes = '' if annotes == None else annotes 
         commentStamp = self.SENT_STAMP
@@ -228,9 +232,11 @@ class calibrebeamDialog(QDialog):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
-           
+
+
     def make_evernote_name(self, metadata):
         return metadata.get('title')
+
 
     def make_evernote_content(self, metadata):
         annotations = self.get_annotations_raw_from_metadata(metadata)
@@ -245,9 +251,8 @@ class calibrebeamDialog(QDialog):
         content += '</en-note>'
         return content
 
-    def create_note(self, title, content, note_store): 
-        # To create a new note, simply create a new Note object and fill in
-        # attributes such as the note's title.
+
+    def create_note(self, title, content, note_store):
         note = Types.Note()
         note.title = title
         note.content = content
@@ -256,8 +261,8 @@ class calibrebeamDialog(QDialog):
         if prefs['notebook']:
             note.notebookGuid = self.create_evernote_notebook_if_not_exits()
         created_note = note_store.createNote(note)
-        #print("Successfully created a new note with GUID: " + created_note.guid)
-        
+
+
     def create_evernote_notebook_if_not_exits(self):
         nb_name = prefs['notebook']
         self.connect_to_evernote()
@@ -271,6 +276,7 @@ class calibrebeamDialog(QDialog):
             print("Successfully created a new notebook with GUID: " + created_nb.guid)
         return nb_guid
 
+
     def get_notebook_guid_if_exists(self, nb_name):
         if self.cached_prefs_notebook_guid != None:
             return self.cached_prefs_notebook_guid
@@ -280,4 +286,3 @@ class calibrebeamDialog(QDialog):
                 self.cached_prefs_notebook_guid = nb.guid
                 return nb.guid
         return None
-        

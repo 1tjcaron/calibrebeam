@@ -22,6 +22,18 @@ prefs = JSONConfig('plugins/calibrebeam2')
 prefs.defaults['hello_world_msg'] = 'beam highlights and annotations to evernote!'
 prefs.defaults['notebook'] = ""
 prefs.defaults['tagsCsv'] = ""
+prefs.defaults['oauth_token'] = ""
+prefs.defaults['oauth_username'] = ""
+
+
+def save_username_and_token(username, token):
+    prefs['oauth_username'] = username
+    prefs['oauth_token'] = token
+
+
+def get_username_and_token():
+    return prefs['oauth_username'], prefs['oauth_token']
+
 
 class ConfigWidget(QWidget):
 
