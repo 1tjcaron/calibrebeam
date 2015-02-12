@@ -13,8 +13,8 @@ from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, QUr
 from calibre_plugins.calibrebeam.config import prefs
 import calibre_plugins.calibrebeam.deps.evernote.edam.type.ttypes as Types
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url     
-import calibre_plugins.calibrebeam.config as cfg
+from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url
+import socket
 
 class calibrebeamDialog(QDialog):
     
@@ -22,10 +22,6 @@ class calibrebeamDialog(QDialog):
         # TODO: edit to be per user stamp?
         self.SENT_STAMP = '<p class="calibrebeamStamp">COMMENTS ALREADY SENT TO EVERNOTE</p>'
         self.ANNOTATIONS_PRESENT_STRING = 'class="annotation"'
-        # self.auth_token = None
-        # self.username = None
-        # self.evernote.notebook = 'books'
-        # self.evernote.tag = "tag"
         self.note_store = None
 
         QDialog.__init__(self, gui)
@@ -101,42 +97,65 @@ class calibrebeamDialog(QDialog):
     def authorize_plugin(self):
         username, ok_u = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote Username:')
         if not ok_u:
-            return "", ""
+            return None, None
         password, ok_p = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote password:')
         if not ok_p:
-            return "", ""
+            return None, None
         permission_msg = u'''
         Do you want to allow calibrebeam to:
             \u2022 Create notes, notebooks and tags.
             \u2022 List notebooks and tags.
         '''
         if not question_dialog(self, 'Allow Access', permission_msg):
-            return "", ""
+            return None, None
 
         return username, password
 
     def connect_to_evernote(self):
         if self.note_store:
-            return
+            return self.note_store
         else:
-            self.create_note_store()
+            return self.create_note_store()
 
     def create_note_store(self):
-        from calibre_plugins.calibrebeam.config import get_username_and_token
-        username, auth_token = get_username_and_token()
-        self.create_new_note_store(username, auth_token)
+        try:
+            from calibre_plugins.calibrebeam.config import get_username_and_token
+            username, auth_token = get_username_and_token()
+            return self.create_new_note_store(username, auth_token)
+        except socket.gaierror:
+            info_dialog(self, 'INTERNET',
+                        'connectivity is bad',
+                        show=True)
 
-    def create_new_note_store(self, username="", auth_token=""):
-        reset_stored_creds = False
-        if username == "" or auth_token == "":
-            reset_stored_creds = True
+    def get_auth_token(self, password, username):
+        try:
             from calibre_plugins.calibrebeam.deps.geeknote.oauth import GeekNoteAuth
             gna = GeekNoteAuth()
-            username, password = self.authorize_plugin()
             auth_token = gna.getToken(username, password)
+            return auth_token
+        except socket.gaierror or TypeError:
+            info_dialog(self, 'INTERNET',
+                        'connectivity is bad',
+                        show=True)
+            return None
+
+    def create_new_note_store(self, username=None, auth_token=None):
+        reset_stored_creds = False
+        if not (username and auth_token):
+            reset_stored_creds = True
+            username, password = self.authorize_plugin()
+            if not (username and password):
+                return None
+            auth_token = self.get_auth_token(password, username)
+            if not auth_token:
+                # timout or connectivity or something
+                return None
             if auth_token == "ERROR":
-                # TODO: improve error handling
-                return "ERROR"
+                # probably typed wrong stuffs
+                info_dialog(self, 'EVERNOTE',
+                            'Could not login.  Please verify your Evernote username and password and try again.',
+                            show=True)
+                return None
         from calibre_plugins.calibrebeam.deps.evernote.api.client import EvernoteClient
         client = EvernoteClient(token=auth_token, sandbox=True)
         self.note_store = client.get_note_store()
@@ -144,10 +163,12 @@ class calibrebeamDialog(QDialog):
         if reset_stored_creds:
             from calibre_plugins.calibrebeam.config import save_username_and_token
             save_username_and_token(username, auth_token)
+        return self.note_store
 
     def send_selected_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
-        self.connect_to_evernote()
+        if not self.connect_to_evernote():
+            return
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -163,7 +184,8 @@ class calibrebeamDialog(QDialog):
         
     def send_only_new_highlights_to_evernote(self):
         from calibre.gui2 import error_dialog, info_dialog
-        self.connect_to_evernote()
+        if not self.connect_to_evernote():
+            return
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -259,30 +281,49 @@ class calibrebeamDialog(QDialog):
         if prefs['tagsCsv']:
             note.tagNames = prefs['tagsCsv'].split(",")
         if prefs['notebook']:
-            note.notebookGuid = self.create_evernote_notebook_if_not_exits()
-        created_note = note_store.createNote(note)
+            nb_guid = self.create_evernote_notebook_if_not_exits()
+            if not nb_guid:
+                return
+            note.notebookGuid = nb_guid
+        try:
+            created_note = note_store.createNote(note)
+        except socket.gaierror:
+            info_dialog(self, 'INTERNET',
+                        'connectivity is bad',
+                        show=True)
+            return
 
 
     def create_evernote_notebook_if_not_exits(self):
         nb_name = prefs['notebook']
-        self.connect_to_evernote()
+        if not self.connect_to_evernote():
+            return
         nb_guid = self.get_notebook_guid_if_exists(nb_name)
-        if nb_guid == None:
+        if not nb_guid:
             notebook = Types.Notebook()
             notebook.name = nb_name
-            created_nb = self.note_store.createNotebook(notebook)
+            try:
+                created_nb = self.note_store.createNotebook(notebook)
+            except socket.gaierror:
+                info_dialog(self, 'INTERNET',
+                            'connectivity is bad',
+                            show=True)
+                return
             nb_guid = created_nb.guid
-            self.cached_prefs_notebook_guid = nb_guid
             print("Successfully created a new notebook with GUID: " + created_nb.guid)
         return nb_guid
 
 
     def get_notebook_guid_if_exists(self, nb_name):
-        if self.cached_prefs_notebook_guid != None:
-            return self.cached_prefs_notebook_guid
-        for nb in self.note_store.listNotebooks():
-            if nb.name.lower() == nb_name.lower(): #TODO: make note of this caviat in docs
-                print(nb_name + " Notebook exists already GUID: " + nb.guid)
-                self.cached_prefs_notebook_guid = nb.guid
-                return nb.guid
-        return None
+        try:
+            for nb in self.note_store.listNotebooks():
+                if nb.name.lower() == nb_name.lower(): # TODO: make note of this caviat in docs
+                    print(nb_name + " Notebook exists already GUID: " + nb.guid)
+                    self.cached_prefs_notebook_guid = nb.guid
+                    return nb.guid
+        except socket.gaierror:
+            info_dialog(self, 'INTERNET',
+                        'connectivity is bad',
+                        show=True)
+            return None
+

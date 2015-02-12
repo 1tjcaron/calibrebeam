@@ -232,7 +232,7 @@ class GeekNoteAuth(object):
         if not response.location and response.status == 200:
             if self.incorrectLogin < 3:
                 self.incorrectLogin += 1
-                return self.login()
+                return self.login(username, password)
             else:
                 logging.error("Incorrect login or password")
 
