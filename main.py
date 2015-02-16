@@ -38,7 +38,8 @@ class calibrebeamDialog(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.label = QLabel('Logged into evernote: ' + prefs['oauth_username'])
+        top_msg = 'Logged into evernote: ' + prefs['oauth_username'] if prefs['oauth_username'] else ''
+        self.label = QLabel(top_msg)
         self.l.addWidget(self.label)
         
         self.devkey_token = "1tjcaron-3617"
