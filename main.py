@@ -38,7 +38,7 @@ class calibrebeamDialog(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.label = QLabel(prefs['hello_world_msg'])
+        self.label = QLabel('Logged into evernote: ' + prefs['oauth_username'])
         self.l.addWidget(self.label)
         
         self.devkey_token = "1tjcaron-3617"
@@ -90,9 +90,12 @@ class calibrebeamDialog(QDialog):
         QMessageBox.about(self, 'About calibrebeam',
                 text.decode('utf-8'))
 
+    # def config(self):
+    #     from evernote_connect import ConfigWidget
+    #     ConfigWidget()
+
     def config(self):
-        from evernote_connect import ConfigWidget
-        ConfigWidget()
+        self.do_user_config(parent=self)
 
     def authorize_plugin(self):
         username, ok_u = QInputDialog.getText(self, 'Input Dialog', 'Enter your Evernote Username:')
@@ -163,6 +166,7 @@ class calibrebeamDialog(QDialog):
         if reset_stored_creds:
             from calibre_plugins.calibrebeam.config import save_username_and_token
             save_username_and_token(username, auth_token)
+            self.label.setText('Logged into evernote as ' + prefs['oauth_username'])
         return self.note_store
 
     def send_selected_highlights_to_evernote(self):
@@ -248,12 +252,6 @@ class calibrebeamDialog(QDialog):
         commentStamp = self.SENT_STAMP
         if commentStamp not in annotes:
             self.set_annotations_raw(book_id, commentStamp + annotes)
-    
-    
-    def config(self):
-        self.do_user_config(parent=self)
-        # Apply the changes
-        self.label.setText(prefs['hello_world_msg'])
 
 
     def make_evernote_name(self, metadata):

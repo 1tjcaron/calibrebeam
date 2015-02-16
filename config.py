@@ -19,7 +19,7 @@ from calibre.utils.config import JSONConfig
 prefs = JSONConfig('plugins/calibrebeam2')
 
 # Set defaults
-prefs.defaults['hello_world_msg'] = 'beam highlights and annotations to evernote!'
+# prefs.defaults['hello_world_msg'] = 'beam highlights and annotations to evernote!'
 prefs.defaults['notebook'] = ""
 prefs.defaults['tagsCsv'] = ""
 prefs.defaults['oauth_token'] = ""
@@ -42,13 +42,13 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.label = QLabel('Hello world &message:')
-        self.l.addWidget(self.label)
-
-        self.msg = QLineEdit(self)
-        self.msg.setText(prefs['hello_world_msg'])
-        self.l.addWidget(self.msg)
-        self.label.setBuddy(self.msg)
+        # self.label = QLabel('Hello world &message:')
+        # self.l.addWidget(self.label)
+        #
+        # self.msg = QLineEdit(self)
+        # self.msg.setText(prefs['hello_world_msg'])
+        # self.l.addWidget(self.msg)
+        # self.label.setBuddy(self.msg)
         
         self.notebookLabel = QLabel('Notebook')
         self.l.addWidget(self.notebookLabel)
@@ -67,7 +67,7 @@ class ConfigWidget(QWidget):
         self.tagsCsvLabel.setBuddy(self.tagsCsvMsg)
 
     def save_settings(self):
-        prefs['hello_world_msg'] = unicode(self.msg.text())
+        # prefs['hello_world_msg'] = unicode(self.msg.text())
         prefs['notebook'] = unicode(self.notebookMsg.text())
         prefs['tagsCsv'] = unicode(self.tagsCsvMsg.text())
 
