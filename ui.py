@@ -24,7 +24,6 @@ class EvernoteSyncPlugin(InterfaceAction):
  #    name = 'Evernote Sync Plugin'
 #     #popup_type = QToolButton.InstantPopup
 #     #action_type = 'current'
-# #    name = 'Goodreads Sync'
 #     # Create our top-level menu/toolbar action (text, icon_path, tooltip, keyboard shortcut)
 #    action_spec = ('Evernote', None, None, 'Ctrl+Shift+w')
 #    popup_type = QToolButton.InstantPopup

@@ -1,5 +1,14 @@
-Calibre beam sends your ereader highlights and annotations to evernote!
+Calibre beam sends your ereader highlights and annotations to evernote! 
 
-Imagine all that knowledge you've gained, all those memories, Plato, Joyce, Hunger Games, and Harry Potter, all those pivotal moments you deemed memorable, all in one place! 
+Each book you’ve synced with the Annotations plugin (http://www.mobileread.com/forums/showthread.php?p=2853161) to store data in the ‘Comments’ section of your book’s metadata can be sent in two ways.
 
-Thanks to you, EVERNOTE, and you, CALIBRE, and of course, the wonderful ANNOTATIONS PLUGIN for CALIBRE, this dream is a reality!
+(1) Beam all unsent:
+Will scan your Calibre library and send all unsent annotations present in comments.  If a book’s notes have been sent to evernote already it will not be resent.
+
+(2) Beam highlighted:
+To select individual books to send, you may highlight books in the calibre library view, and click beam highlighted.  This will resend all books
+
+SETTINGS HELP:
+You can add books to a particular evernote ‘notebook’ if you like, by entering a value.
+
+You can add an unlimited number of tags, just add them as comma separated values.

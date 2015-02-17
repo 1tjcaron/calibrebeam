@@ -52,48 +52,20 @@ class calibrebeamDialog(QDialog):
 
 
     def init_buttons(self):
-        self.about_button = QPushButton('About', self)
-        self.about_button.clicked.connect(self.about)
-        self.l.addWidget(self.about_button)
-
-        self.sync_highlighted_button = QPushButton(
-            'Beam Highlighted', self)
-        self.sync_highlighted_button.clicked.connect(self.send_selected_highlights_to_evernote)
-        self.l.addWidget(self.sync_highlighted_button)
-
         self.send_new_button = QPushButton(
             'Beam All Unsent Annotations', self)
         self.send_new_button.clicked.connect(self.send_only_new_highlights_to_evernote)
         self.l.addWidget(self.send_new_button)
         
-        self.login_button = QPushButton(
-            'login', self)
-        self.login_button.clicked.connect(self.create_new_note_store)
-        self.l.addWidget(self.login_button)
+        self.sync_highlighted_button = QPushButton(
+            'Beam Highlighted', self)
+        self.sync_highlighted_button.clicked.connect(self.send_selected_highlights_to_evernote)
+        self.l.addWidget(self.sync_highlighted_button)
 
         self.config_button = QPushButton(
-            'config', self)
+            'Settings', self)
         self.config_button.clicked.connect(self.config)
         self.l.addWidget(self.config_button)
-
-
-    def about(self):
-        # Get the about text from a file inside the plugin zip file
-        # The get_resources function is a builtin function defined for all your
-        # plugin code. It loads files from the plugin zip file. It returns
-        # the bytes from the specified file.
-        #
-        # Note that if you are loading more than one file, for performance, you
-        # should pass a list of names to get_resources. In this case,
-        # get_resources will return a dictionary mapping names to bytes. Names that
-        # are not found in the zip file will not be in the returned dictionary.
-        text = get_resources('about.txt')
-        QMessageBox.about(self, 'About calibrebeam',
-                text.decode('utf-8'))
-
-    # def config(self):
-    #     from evernote_connect import ConfigWidget
-    #     ConfigWidget()
 
     def config(self):
         self.do_user_config(parent=self)

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit
+from PyQt5.Qt import QWidget, QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton
 
 from calibre.utils.config import JSONConfig
 
@@ -42,15 +42,11 @@ class ConfigWidget(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        # self.label = QLabel('Hello world &message:')
-        # self.l.addWidget(self.label)
-        #
-        # self.msg = QLineEdit(self)
-        # self.msg.setText(prefs['hello_world_msg'])
-        # self.l.addWidget(self.msg)
-        # self.label.setBuddy(self.msg)
-        
-        self.notebookLabel = QLabel('Notebook')
+        self.about_button = QPushButton('Help', self)
+        self.about_button.clicked.connect(self.about)
+        self.l.addWidget(self.about_button)
+
+        self.notebookLabel = QLabel('evernote Notebook')
         self.l.addWidget(self.notebookLabel)
 
         self.notebookMsg = QLineEdit(self)
@@ -58,7 +54,7 @@ class ConfigWidget(QWidget):
         self.l.addWidget(self.notebookMsg)
         self.notebookLabel.setBuddy(self.notebookMsg)
         
-        self.tagsCsvLabel = QLabel('Tags CSV (ie calibre,mykindle)')
+        self.tagsCsvLabel = QLabel('evernote Tags CSV (ie calibre,mykindle)')
         self.l.addWidget(self.tagsCsvLabel)
 
         self.tagsCsvMsg = QLineEdit(self)
@@ -67,7 +63,10 @@ class ConfigWidget(QWidget):
         self.tagsCsvLabel.setBuddy(self.tagsCsvMsg)
 
     def save_settings(self):
-        # prefs['hello_world_msg'] = unicode(self.msg.text())
         prefs['notebook'] = unicode(self.notebookMsg.text())
         prefs['tagsCsv'] = unicode(self.tagsCsvMsg.text())
 
+    def about(self):
+        text = get_resources('about.txt')
+        QMessageBox.about(self, 'About calibrebeam',
+                text.decode('utf-8'))
